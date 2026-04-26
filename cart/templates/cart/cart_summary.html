@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Your Bag{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6 text-chain-gold">Your Bag</h1>
+
+        {% if cart_items %}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <section class="lg:col-span-2 space-y-4">
+                    {% for cart_item in cart_items %}
+                        <article class="border border-chain-gold rounded-lg p-4 bg-chain-dark">
+                            <div class="flex items-start gap-4">
+                                {% if cart_item.item.image %}
+                                    <img src="{{ cart_item.item.image.url }}" alt="{{ cart_item.item.name }}" class="w-24 h-24 object-cover rounded">
+                                {% else %}
+                                    <div class="w-24 h-24 bg-gray-200 flex items-center justify-center rounded">
+                                        <span class="text-gray-500 text-sm">No Image</span>
+                                    </div>
+                                {% endif %}
+
+                                <div class="flex-1">
+                                    <h2 class="text-xl font-semibold text-chain-gold">{{ cart_item.item.name }}</h2>
+                                    <p class="text-gray-400">ZMW {{ cart_item.item.price|floatformat:2 }}</p>
+                                    <p class="text-sm text-gray-300 mt-1">Subtotal: ZMW {{ cart_item.total_price|floatformat:2 }}</p>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <form method="post" action="{% url 'cart:update_cart_item' cart_item.item.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="{{ cart_item.quantity|add:'-1' }}">
+                                        <button type="submit" class="w-9 h-9 rounded-md border border-chain-gold text-chain-gold text-lg font-bold hover:bg-chain-gold hover:text-black transition-colors" aria-label="Decrease quantity">
+                                            -
+                                        </button>
+                                    </form>
+
+                                    <span class="min-w-8 text-center font-semibold text-white">{{ cart_item.quantity }}</span>
+
+                                    <form method="post" action="{% url 'cart:update_cart_item' cart_item.item.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="{{ cart_item.quantity|add:'1' }}">
+                                        <button type="submit" class="w-9 h-9 rounded-md border border-chain-gold text-chain-gold text-lg font-bold hover:bg-chain-gold hover:text-black transition-colors" aria-label="Increase quantity">
+                                            +
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="{% url 'cart:remove_from_cart' cart_item.item.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-9 h-9 rounded-md bg-red-700 text-white text-lg font-bold hover:bg-red-800 transition-colors" aria-label="Remove item">
+                                            x
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </section>
+
+                <aside class="lg:col-span-1">
+                    <div class="border border-chain-gold rounded-lg p-5 bg-chain-slate-dark lg:sticky lg:top-6">
+                        <h2 class="text-2xl font-bold text-chain-gold mb-4">Cart Summary</h2>
+                        <div class="space-y-2 text-gray-200">
+                            <div class="flex justify-between">
+                                <span>Items</span>
+                                <span>{{ cart_items|length }}</span>
+                            </div>
+                            <div class="flex justify-between text-lg font-semibold text-white pt-2 border-t border-chain-gold/40">
+                                <span>Total</span>
+                                <span>ZMW {{ cart_items.get_total_price|floatformat:2 }}</span>
+                            </div>
+                        </div>
+
+                        <button id="checkout-button" type="button" class="mt-5 w-full py-3 rounded-lg bg-chain-gold text-black font-semibold hover:bg-chain-gold-dark transition-colors">
+                            Proceed to Checkout
+                        </button>
+                    </div>
+                </aside>
+            </div>
+        {% else %}
+            <p class="text-gray-400">Your bag is currently empty.</p>
+        {% endif %}
+    </div>
+{% endblock %}

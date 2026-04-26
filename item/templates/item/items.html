@@ -1,0 +1,83 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Items{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-6 text-chain-gold">Available Jewelry</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <aside class="lg:col-span-1">
+            <div class="bg-chain-slate-dark rounded-lg p-5 sticky top-6">
+                <h2 class="text-xl font-semibold text-chain-gold mb-4">Categories</h2>
+                <ul class="space-y-2">
+                    <li>
+                        <a
+                            href="{% url 'item:items' %}{% if query %}?q={{ query|urlencode }}{% endif %}"
+                            class="block px-3 py-2 rounded {% if not selected_category %}bg-chain-gold text-black font-semibold{% else %}text-gray-200 hover:bg-chain-slate hover:text-chain-gold{% endif %}"
+                        >
+                            All Categories
+                        </a>
+                    </li>
+                    {% for category in categories %}
+                        <li>
+                            <a
+                                href="{% url 'item:items' %}?category={{ category.id }}{% if query %}&q={{ query|urlencode }}{% endif %}"
+                                class="block px-3 py-2 rounded {% if selected_category == category.id|stringformat:'s' %}bg-chain-gold text-black font-semibold{% else %}text-gray-200 hover:bg-chain-slate hover:text-chain-gold{% endif %}"
+                            >
+                                {{ category.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
+
+        <section class="lg:col-span-3">
+            <form method="get" action="." class="mb-6">
+                {% if selected_category %}
+                    <input type="hidden" name="category" value="{{ selected_category }}">
+                {% endif %}
+                <div class="flex gap-3">
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ query }}"
+                        placeholder="Search jewelry by name or description"
+                        class="flex-1 px-4 py-3 border border-gray-700 rounded-lg bg-chain-slate-dark text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chain-gold"
+                    >
+                    <button type="submit" class="px-5 py-3 bg-chain-gold text-black font-semibold rounded-lg hover:bg-chain-gold-dark transition-colors">
+                        Search
+                    </button>
+                </div>
+            </form>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% for item in items %}
+                <div class="p-1 border border-chain-gold bg-chain-dark rounded-lg shadow hover:shadow-lg transition-shadow">
+                    <a href="{% url 'item:detail' pk=item.pk %}" class="block">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-48 object-cover rounded-t-lg">
+                        {% else %}
+                            <div class="w-full h-48 rounded-t-lg bg-chain-slate flex items-center justify-center text-gray-400">No image</div>
+                        {% endif %}
+                        <div class="p-4">
+                            <h2 class="text-xl font-semibold text-chain-gold">{{ item.name }}</h2>
+                            <p class="text-gray-400 mt-2">ZMW {{ item.price }}</p>
+                        </div>
+                    </a>
+                    <div class="px-4 pb-4">
+                        <form method="post" action="{% url 'cart:add_to_cart' item.id %}" class="js-add-to-cart-form" data-item-name="{{ item.name|escape }}" data-item-price="{{ item.price|floatformat:2 }}" data-item-image="{% if item.image %}{{ item.image.url }}{% endif %}">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full inline-flex justify-center px-3 py-2 text-sm border border-chain-gold text-chain-gold font-semibold bg-chain-dark rounded-lg hover:bg-chain-gold hover:text-black transition-colors">
+                                Add to Bag
+                            </button>
+                        </form>
+                    </div>
+                </div> 
+                {% empty %}
+                    <p class="text-gray-400 col-span-full">No items matched your current filters.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+{% endblock %}
