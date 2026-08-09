@@ -1,0 +1,87 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Order {{ order.reference }}{% endblock %}
+
+{% block content %}
+    <div class="max-w-2xl mx-auto">
+        <div id="order-panel" class="bg-chain-slate-dark rounded-lg p-8 text-center"
+             data-state-url="{% url 'orders:state' reference=order.reference %}"
+             data-settled="{{ order.is_settled|yesno:'true,false' }}">
+
+            {% if order.status == 'paid' %}
+                <div class="text-5xl mb-4">&#10003;</div>
+                <h1 class="text-3xl font-bold text-chain-gold mb-2">Payment received</h1>
+                <p class="text-gray-300">Thank you, {{ order.full_name }}. We'll be in touch about delivery.</p>
+            {% elif order.status == 'failed' %}
+                <h1 class="text-3xl font-bold text-red-400 mb-2">Payment not completed</h1>
+                <p class="text-gray-300">{{ order.failure_reason|default:'The payment was not completed. Nothing was charged.' }}</p>
+            {% elif order.status == 'cancelled' %}
+                <h1 class="text-3xl font-bold text-gray-300 mb-2">Order cancelled</h1>
+            {% else %}
+                <div id="spinner" class="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-chain-gold/30 border-t-chain-gold animate-spin"></div>
+                <h1 class="text-3xl font-bold text-chain-gold mb-2">Check your phone</h1>
+                <p class="text-gray-300">
+                    We sent a payment prompt to <strong>{{ order.phone }}</strong> ({{ order.operator|upper }}).
+                    Enter your mobile money PIN to approve ZMW {{ order.total|floatformat:2 }}.
+                </p>
+                <p class="text-sm text-gray-400 mt-3">This page updates on its own — no need to refresh.</p>
+            {% endif %}
+
+            <p class="mt-6 text-sm text-gray-400">Order reference <span class="font-mono text-chain-gold">{{ order.reference }}</span></p>
+        </div>
+
+        <div class="mt-6 bg-chain-slate-dark rounded-lg p-6">
+            <h2 class="text-xl font-bold text-chain-gold mb-4">What you ordered</h2>
+            <ul class="space-y-2">
+                {% for line in order.items.all %}
+                    <li class="flex justify-between gap-3 text-sm">
+                        <span class="text-gray-200">{{ line.quantity }} &times; {{ line.name }}</span>
+                        <span class="text-white whitespace-nowrap">ZMW {{ line.subtotal|floatformat:2 }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="flex justify-between font-semibold text-white mt-4 pt-3 border-t border-chain-gold/40">
+                <span>Total</span>
+                <span>ZMW {{ order.total|floatformat:2 }}</span>
+            </div>
+            <p class="mt-4 text-sm text-gray-400">Deliver to: {{ order.delivery_address }}</p>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-3 justify-center">
+            <a href="{% url 'item:items' %}" class="px-6 py-3 border border-chain-gold text-chain-gold rounded-lg hover:bg-chain-gold hover:text-black transition-colors">Keep shopping</a>
+            {% if order.status == 'failed' %}
+                <a href="{% url 'cart:cart_summary' %}" class="px-6 py-3 bg-chain-gold text-black font-semibold rounded-lg hover:bg-chain-gold-dark transition-colors">Try again</a>
+            {% endif %}
+            <a href="{% url 'core:contact' %}" class="px-6 py-3 border border-chain-gold text-chain-gold rounded-lg hover:bg-chain-gold hover:text-black transition-colors">Need help?</a>
+        </div>
+    </div>
+
+    <script>
+      (function () {
+        const panel = document.getElementById('order-panel');
+        if (!panel || panel.dataset.settled === 'true') {
+          return;
+        }
+
+        // Mobile money approval takes a while; poll for a few minutes then stop.
+        let attempts = 0;
+        const timer = setInterval(function () {
+          attempts += 1;
+          if (attempts > 60) {
+            clearInterval(timer);
+            return;
+          }
+
+          fetch(panel.dataset.stateUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+              if (data.settled) {
+                clearInterval(timer);
+                window.location.reload();
+              }
+            })
+            .catch(function () { /* transient — try again on the next tick */ });
+        }, 5000);
+      })();
+    </script>
+{% endblock %}

@@ -10,22 +10,43 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
+
+
+def env_bool(name, default=False):
+    return os.environ.get(name, str(default)).strip().lower() in {'1', 'true', 'yes', 'on'}
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)ys44@fh+j^x5!(b=ov!c#s*e8bg7dvb*eld+vcypt_%zt#+05'
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-)ys44@fh+j^x5!(b=ov!c#s*e8bg7dvb*eld+vcypt_%zt#+05',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [h for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if h]
+
+# Bila must be able to POST the webhook to us over HTTPS.
+CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',') if o]
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
@@ -43,7 +64,40 @@ INSTALLED_APPS = [
     'item',
     'dashboard',
     'cart',
+    'orders',
 ]
+
+# --- Email ---------------------------------------------------------------------
+# Dev prints receipts to the console; set EMAIL_HOST to send for real.
+SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Chain Reaction <orders@chainreaction.test>')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
+EMAIL_TIMEOUT = 10
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend' if EMAIL_HOST
+    else 'django.core.mail.backends.console.EmailBackend',
+)
+
+# Who gets told a paid order has landed. Comma-separated for more than one.
+ORDER_NOTIFY_EMAILS = [
+    address.strip()
+    for address in os.environ.get('ORDER_NOTIFY_EMAIL', '').split(',')
+    if address.strip()
+]
+
+# --- Bila payments (https://docs.usebila.com) ---------------------------------
+# Sandbox: https://sandbox.usebila.com with an sk_test_ key.
+BILA_BASE_URL = os.environ.get('BILA_BASE_URL', 'https://sandbox.usebila.com')
+BILA_API_KEY = os.environ.get('BILA_API_KEY', '')
+BILA_WALLET_ID = os.environ.get('BILA_WALLET_ID', '')
+BILA_WEBHOOK_SECRET = os.environ.get('BILA_WEBHOOK_SECRET', '')
+BILA_COUNTRY = os.environ.get('BILA_COUNTRY', 'zm')
+BILA_FEE_BEARER = os.environ.get('BILA_FEE_BEARER', 'merchant')  # merchant | customer
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

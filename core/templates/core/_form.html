@@ -1,0 +1,21 @@
+{# Renders a whole form body: non-field errors, then every field. Expects `form`. #}
+{% if form.non_field_errors %}
+    <div class="bg-red-900/40 border border-red-500 text-red-200 p-3 rounded-lg text-sm">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+    </div>
+{% endif %}
+
+{% for field in form %}
+    <div class="space-y-1">
+        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-200">
+            {{ field.label }}{% if field.field.required %} <span class="text-chain-gold">*</span>{% endif %}
+        </label>
+        {{ field }}
+        {% for error in field.errors %}
+            <p class="text-red-400 text-sm">{{ error }}</p>
+        {% endfor %}
+        {% if field.help_text %}
+            <p class="text-gray-400 text-xs">{{ field.help_text|safe }}</p>
+        {% endif %}
+    </div>
+{% endfor %}

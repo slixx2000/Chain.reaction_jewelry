@@ -1,0 +1,22 @@
+Hi {{ order.full_name }},
+
+Thanks for your order — your payment came through.
+
+Order {{ order.reference }}
+Paid {{ order.paid_at|date:"j F Y, H:i" }}
+
+{% for line in lines %}{{ line.quantity }} x {{ line.name }} — ZMW {{ line.subtotal|floatformat:2 }}
+{% endfor %}
+Total: ZMW {{ order.total|floatformat:2 }}
+Paid with {{ order.operator|upper }} mobile money ({{ order.phone }})
+
+Delivering to:
+{{ order.delivery_address }}
+
+We'll be in touch shortly to arrange delivery.
+
+Track this order: {{ order_url }}
+
+Questions? Just reply to this email.
+
+Chain Reaction

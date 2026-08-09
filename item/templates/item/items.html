@@ -1,13 +1,14 @@
 {% extends 'core/base.html' %}
 
-{% block title %} Items{% endblock %}
+{% block title %}Browse Jewelry{% endblock %}
 
 {% block content %}
+    <div class="max-w-7xl mx-auto">
     <h1 class="text-3xl font-bold mb-6 text-chain-gold">Available Jewelry</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <aside class="lg:col-span-1">
-            <div class="bg-chain-slate-dark rounded-lg p-5 sticky top-6">
+            <div class="bg-chain-slate-dark rounded-lg p-5 lg:sticky lg:top-24">
                 <h2 class="text-xl font-semibold text-chain-gold mb-4">Categories</h2>
                 <ul class="space-y-2">
                     <li>
@@ -33,17 +34,18 @@
         </aside>
 
         <section class="lg:col-span-3">
-            <form method="get" action="." class="mb-6">
+            <form method="get" action="." class="mb-4">
                 {% if selected_category %}
                     <input type="hidden" name="category" value="{{ selected_category }}">
                 {% endif %}
                 <div class="flex gap-3">
                     <input
-                        type="text"
+                        type="search"
                         name="q"
                         value="{{ query }}"
+                        aria-label="Search jewelry"
                         placeholder="Search jewelry by name or description"
-                        class="flex-1 px-4 py-3 border border-gray-700 rounded-lg bg-chain-slate-dark text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chain-gold"
+                        class="flex-1 min-w-0 px-4 py-3 border border-gray-700 rounded-lg bg-chain-slate-dark text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chain-gold"
                     >
                     <button type="submit" class="px-5 py-3 bg-chain-gold text-black font-semibold rounded-lg hover:bg-chain-gold-dark transition-colors">
                         Search
@@ -51,33 +53,35 @@
                 </div>
             </form>
 
+            <div class="flex items-center justify-between mb-4 text-sm text-gray-400">
+                <p>{{ page.paginator.count }} item{{ page.paginator.count|pluralize }} found</p>
+                {% if query or selected_category %}
+                    <a href="{% url 'item:items' %}" class="hover:text-chain-gold">Clear filters</a>
+                {% endif %}
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {% for item in items %}
-                <div class="p-1 border border-chain-gold bg-chain-dark rounded-lg shadow hover:shadow-lg transition-shadow">
-                    <a href="{% url 'item:detail' pk=item.pk %}" class="block">
-                        {% if item.image %}
-                            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-48 object-cover rounded-t-lg">
-                        {% else %}
-                            <div class="w-full h-48 rounded-t-lg bg-chain-slate flex items-center justify-center text-gray-400">No image</div>
-                        {% endif %}
-                        <div class="p-4">
-                            <h2 class="text-xl font-semibold text-chain-gold">{{ item.name }}</h2>
-                            <p class="text-gray-400 mt-2">ZMW {{ item.price }}</p>
-                        </div>
-                    </a>
-                    <div class="px-4 pb-4">
-                        <form method="post" action="{% url 'cart:add_to_cart' item.id %}" class="js-add-to-cart-form" data-item-name="{{ item.name|escape }}" data-item-price="{{ item.price|floatformat:2 }}" data-item-image="{% if item.image %}{{ item.image.url }}{% endif %}">
-                            {% csrf_token %}
-                            <button type="submit" class="w-full inline-flex justify-center px-3 py-2 text-sm border border-chain-gold text-chain-gold font-semibold bg-chain-dark rounded-lg hover:bg-chain-gold hover:text-black transition-colors">
-                                Add to Bag
-                            </button>
-                        </form>
-                    </div>
-                </div> 
+                    {% include 'item/_card.html' %}
                 {% empty %}
                     <p class="text-gray-400 col-span-full">No items matched your current filters.</p>
                 {% endfor %}
             </div>
+
+            {% if page.has_other_pages %}
+                <nav aria-label="Pagination" class="mt-8 flex items-center justify-center gap-3">
+                    {% if page.has_previous %}
+                        <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page.previous_page_number }}"
+                           class="px-4 py-2 rounded-lg border border-chain-gold text-chain-gold hover:bg-chain-gold hover:text-black transition-colors">Previous</a>
+                    {% endif %}
+                    <span class="text-gray-400">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+                    {% if page.has_next %}
+                        <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page.next_page_number }}"
+                           class="px-4 py-2 rounded-lg border border-chain-gold text-chain-gold hover:bg-chain-gold hover:text-black transition-colors">Next</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
         </section>
+    </div>
     </div>
 {% endblock %}

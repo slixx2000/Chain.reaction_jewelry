@@ -1,0 +1,84 @@
+{% comment %}
+Email HTML: tables and inline styles only. Mail clients strip <style> blocks and
+external CSS, so none of the site's Tailwind applies here.
+{% endcomment %}<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background-color:#f4f4f4;font-family:Helvetica,Arial,sans-serif;color:#252628;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:8px;overflow:hidden;">
+
+          <tr>
+            <td style="background-color:#1a1c1f;padding:24px;text-align:center;">
+              <h1 style="margin:0;color:#d29f22;font-size:22px;letter-spacing:1px;">CHAIN REACTION</h1>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:28px 24px 8px;">
+              <h2 style="margin:0 0 12px;font-size:20px;color:#252628;">Payment received</h2>
+              <p style="margin:0 0 8px;font-size:15px;line-height:1.5;">Hi {{ order.full_name }}, thanks for your order.</p>
+              <p style="margin:0;font-size:14px;color:#666;">
+                Order <strong style="color:#252628;">{{ order.reference }}</strong> &middot; {{ order.paid_at|date:"j F Y, H:i" }}
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:20px 24px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
+                {% for line in lines %}
+                  <tr>
+                    <td style="padding:10px 0;border-bottom:1px solid #eee;">{{ line.quantity }} &times; {{ line.name }}</td>
+                    <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;">ZMW {{ line.subtotal|floatformat:2 }}</td>
+                  </tr>
+                {% endfor %}
+                <tr>
+                  <td style="padding:14px 0 0;font-weight:bold;font-size:16px;">Total</td>
+                  <td style="padding:14px 0 0;font-weight:bold;font-size:16px;text-align:right;white-space:nowrap;">ZMW {{ order.total|floatformat:2 }}</td>
+                </tr>
+              </table>
+              <p style="margin:12px 0 0;font-size:13px;color:#666;">
+                Paid with {{ order.operator|upper }} mobile money ({{ order.phone }})
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 24px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#faf6ec;border-radius:6px;">
+                <tr>
+                  <td style="padding:16px;font-size:14px;line-height:1.5;">
+                    <strong style="display:block;margin-bottom:4px;">Delivering to</strong>
+                    {{ order.delivery_address|linebreaksbr }}
+                    <span style="display:block;margin-top:8px;color:#666;">We'll be in touch shortly to arrange delivery.</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 24px 28px;text-align:center;">
+              <a href="{{ order_url }}" style="display:inline-block;padding:12px 28px;background-color:#d29f22;color:#000000;text-decoration:none;border-radius:6px;font-weight:bold;font-size:15px;">
+                View your order
+              </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="background-color:#f9f9f9;padding:18px 24px;text-align:center;font-size:12px;color:#888;">
+              Questions? Reply to this email or write to
+              <a href="mailto:{{ shop_email }}" style="color:#a67c1a;">{{ shop_email }}</a>.<br>
+              &copy; Chain Reaction
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

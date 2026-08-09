@@ -1,101 +1,39 @@
 from django import forms
 from .models import Item
 
-class newItemForm(forms.ModelForm):
-    category = forms.ModelChoiceField(
-        queryset=None,
-        widget=forms.Select(
-            attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-chain-gold',
-            }
-        ),
-    )
-    name = forms.CharField(
-        max_length=255,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-chain-gold',
-                'placeholder': 'Item name',
-            }
-        ),
-    )
-    description = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-chain-gold resize-none',
-                'placeholder': 'Item description',
-                'rows': '4',
-            }
-        ),
-    )
-    price = forms.FloatField(
-        widget=forms.NumberInput(
-            attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-chain-gold',
-                'placeholder': 'Price',
-                'step': '0.01',
-            }
-        ),
-    )
-    image = forms.ImageField(
-        required=False,
-        widget=forms.FileInput(
-            attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-chain-gold',
-                'accept': 'image/*',
-            }
-        ),
-    )
+INPUT = (
+    'w-full px-4 py-2 border rounded-lg bg-white text-black placeholder-gray-500 '
+    'focus:outline-none focus:ring-2 focus:ring-chain-gold'
+)
+
+
+class ItemForm(forms.ModelForm):
+    """Used for both create and edit."""
 
     class Meta:
         model = Item
         fields = ('category', 'name', 'description', 'price', 'image', 'is_sold')
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        from .models import Category
-        self.fields['category'].queryset = Category.objects.all()
-
-class EditItemForm(forms.ModelForm):
-    name = forms.CharField(
-        max_length=255,
-         widget=forms.TextInput(
-            attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-chain-gold',
-                'placeholder': 'Item name',
-            }
-        ),
-    )
-    description = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-chain-gold resize-none',
+        widgets = {
+            'category': forms.Select(attrs={'class': INPUT}),
+            'name': forms.TextInput(attrs={'class': INPUT, 'placeholder': 'Item name'}),
+            'description': forms.Textarea(attrs={
+                'class': INPUT + ' resize-none',
                 'placeholder': 'Item description',
                 'rows': '4',
-            }
-        ),
-    )
-    price = forms.FloatField(
-        widget=forms.NumberInput(
-            attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-chain-gold',
+            }),
+            'price': forms.NumberInput(attrs={
+                'class': INPUT,
                 'placeholder': 'Price',
                 'step': '0.01',
-            }
-        ),
-    )
-    image = forms.ImageField(
-        required=False,
-        widget=forms.FileInput(
-            attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-chain-gold',
-                'accept': 'image/*',
-            }
-        ),
-    )
+                'min': '0',
+            }),
+            'image': forms.FileInput(attrs={'class': INPUT, 'accept': 'image/*'}),
+            'is_sold': forms.CheckboxInput(attrs={'class': 'w-5 h-5 accent-chain-gold'}),
+        }
+        labels = {'is_sold': 'Mark as sold'}
 
-    class Meta:
-        model = Item
-        fields = ('name', 'description', 'price', 'image', 'is_sold')
+    def clean_price(self):
+        price = self.cleaned_data['price']
+        if price <= 0:
+            raise forms.ValidationError('Price must be greater than zero.')
+        return price

@@ -1,9 +1,34 @@
 {% extends 'core/base.html' %}
 
 {% block title %}Contact{% endblock %}
+{% block description %}Get in touch with Chain Reaction about a piece, a custom commission, or an order.{% endblock %}
 
 {% block content %}
- <h1 class="text-3xl font-bold underline">
-           contact us
-        </h1>
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-chain-gold mb-4">Get in touch</h1>
+        <p class="text-gray-300 mb-8">
+            Questions about a piece, a custom commission, or an order you've placed? Message us and
+            we'll get back to you.
+        </p>
+
+        <div class="bg-chain-slate-dark rounded-lg p-6 space-y-4">
+            <div>
+                <p class="text-sm uppercase tracking-wide text-gray-400">Email</p>
+                <a href="mailto:mutangishaun7@gmail.com" class="text-chain-gold text-lg hover:underline">mutangishaun7@gmail.com</a>
+            </div>
+            <div>
+                <p class="text-sm uppercase tracking-wide text-gray-400">Based in</p>
+                <p class="text-lg text-white">Zambia &middot; prices shown in ZMW</p>
+            </div>
+            <div>
+                <p class="text-sm uppercase tracking-wide text-gray-400">Orders</p>
+                <p class="text-gray-300">
+                    Online payment isn't live yet. Add pieces to your bag, then email us the items
+                    and we'll arrange payment and delivery.
+                </p>
+            </div>
+        </div>
+
+        <a href="{% url 'item:items' %}" class="inline-block mt-8 text-sm text-gray-300 hover:text-chain-gold">&larr; Back to the collection</a>
+    </div>
 {% endblock %}

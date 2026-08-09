@@ -7,7 +7,7 @@ from .forms import SignUpForm
 
 
 def index(request):
-    items = Item.objects.all()
+    items = Item.objects.filter(is_sold=False).order_by('-created_at')[:8]
     categories = Category.objects.all()
     return render(request, 'core/index.html', {'items': items, 'categories': categories})
 

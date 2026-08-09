@@ -1,5 +1,7 @@
 from item.models import Item
 
+MAX_QUANTITY = 99
+
 
 class Cart:
     def __init__(self, request):
@@ -15,9 +17,11 @@ class Cart:
             self.cart[item_id] = {'quantity': 0}
 
         if override_quantity:
-            self.cart[item_id]['quantity'] = quantity
+            new_quantity = quantity
         else:
-            self.cart[item_id]['quantity'] += quantity
+            new_quantity = self.cart[item_id]['quantity'] + quantity
+
+        self.cart[item_id]['quantity'] = max(1, min(new_quantity, MAX_QUANTITY))
 
         self.save()
 
@@ -30,6 +34,10 @@ class Cart:
             del self.cart[item_id]
             self.save()
 
+    def clear(self):
+        self.cart = self.session['cart_key'] = {}
+        self.save()
+
     def update(self, item, quantity):
         item_id = str(item.id)
         if quantity <= 0:
@@ -37,23 +45,28 @@ class Cart:
             return
 
         if item_id in self.cart:
-            self.cart[item_id]['quantity'] = quantity
+            self.cart[item_id]['quantity'] = min(quantity, MAX_QUANTITY)
             self.save()
 
     def __iter__(self):
-        item_ids = self.cart.keys()
-        items = Item.objects.filter(id__in=item_ids)
+        items = Item.objects.filter(id__in=self.cart.keys())
+        found = {str(item.id): item for item in items}
 
-        cart = self.cart.copy()
-        for item in items:
-            cart[str(item.id)]['item'] = item
+        # Drop ids whose item no longer exists, otherwise iteration KeyErrors.
+        stale = [item_id for item_id in self.cart if item_id not in found]
+        if stale:
+            for item_id in stale:
+                del self.cart[item_id]
+            self.save()
 
-        for cart_item in cart.values():
-            cart_item['total_price'] = cart_item['item'].price * cart_item['quantity']
+        for item_id, item in found.items():
+            cart_item = dict(self.cart[item_id])
+            cart_item['item'] = item
+            cart_item['total_price'] = item.price * cart_item['quantity']
             yield cart_item
 
     def __len__(self):
         return sum(item['quantity'] for item in self.cart.values())
 
     def get_total_price(self):
-        return sum(item['item'].price * item['quantity'] for item in self)
+        return sum(item['total_price'] for item in self)

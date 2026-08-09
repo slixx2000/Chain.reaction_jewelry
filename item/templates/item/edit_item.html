@@ -6,29 +6,13 @@
     <div class="max-w-2xl mx-auto bg-chain-slate-dark p-8 rounded-lg shadow-lg">
         <h1 class="text-3xl font-bold mb-6 text-chain-gold">{{ title }}</h1>
 
+        {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-32 h-32 object-cover rounded-lg mb-6">
+        {% endif %}
+
         <form method="post" action="." enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
-
-            {% if form.non_field_errors %}
-                <div class="bg-red-100 text-red-700 p-4 mb-4 rounded">
-                    {{ form.non_field_errors }}
-                </div>
-            {% endif %}
-
-            {% for field in form %}
-                <div class="space-y-2">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="text-red-500 text-sm">
-                            {{ field.errors }}
-                        </div>
-                    {% endif %}
-                    {% if field.help_text %}
-                        <p class="text-gray-400 text-sm">{{ field.help_text|safe }}</p>
-                    {% endif %}
-                </div>
-            {% endfor %}
+            {% include 'core/_form.html' %}
 
             <div class="flex gap-3">
                 <button type="submit" class="flex-1 py-3 bg-chain-gold text-black font-semibold rounded-lg hover:bg-chain-gold-dark transition-colors">

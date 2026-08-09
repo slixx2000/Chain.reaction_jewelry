@@ -1,0 +1,20 @@
+Paid order {{ order.reference }} — ZMW {{ order.total|floatformat:2 }}
+
+PACK
+{% for line in lines %}  {{ line.quantity }} x {{ line.name }} — ZMW {{ line.subtotal|floatformat:2 }}
+{% endfor %}
+DELIVER TO
+  {{ order.full_name }}
+  {{ order.phone }}{% if order.email %}
+  {{ order.email }}{% endif %}
+
+{{ order.delivery_address }}
+
+PAYMENT
+  {{ order.operator|upper }} mobile money
+  Paid {{ order.paid_at|date:"j F Y, H:i" }}
+  Bila collection: {{ order.bila_collection_id|default:"n/a" }}
+
+Open in admin: {{ admin_url }}
+
+{% if order.email %}Reply to this email to reach {{ order.full_name }} directly.{% else %}No email on file — reach the customer on {{ order.phone }}.{% endif %}
