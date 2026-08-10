@@ -37,3 +37,6 @@ htmlcov/
 
 # Secrets
 .env
+
+# Local design references (kept on disk, not in the repo)
+stitch_*/

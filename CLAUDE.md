@@ -119,17 +119,18 @@ curation: chosen, sourced, found, brought here. `HonestCopyTests` in
 `core/tests.py` fails the build if a banned phrase reaches a rendered page —
 if you are tempted to loosen it, change the business, not the test.
 
-Note the Stitch reference design in `stitch_chain_reaction_editorial_artistry/`
-still carries the old "Made by Hand" copy. Take its **visual** system only.
+The original Stitch reference design still carries the old "Made by Hand" copy.
+If you are handed it, take its **visual** system only.
 
 ## Design system — "Obsidian & Gold"
 
-Landing page and shared chrome follow `stitch_.../DESIGN.md`: obsidian/ink
+Landing page and shared chrome follow an editorial system: obsidian/ink
 surfaces, warm ivory text, antique gold used sparingly as an accent, Bodoni
 Moda display over Hanken Grotesk body, **sharp 0px corners**, hairline ivory
 rules, no shadows (depth comes from tonal layering and the `.grain` overlay),
 and deliberate asymmetry. Tokens live in the Tailwind config in `base.html`
-alongside the older `chain-*` colours, which inner pages still use.
+alongside the older `chain-*` colours, which inner pages still use — that
+config is the source of truth now, not any external design file.
 
 `core/_placeholder.html` renders a labelled block wherever a photo has not been
 shot yet. **Multi-line `{# #}` comments do not exist in Django** — it only
