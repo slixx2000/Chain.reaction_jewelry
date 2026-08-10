@@ -1,10 +1,8 @@
 from django import forms
-from .models import Item
 
-INPUT = (
-    'w-full px-4 py-2 border rounded-lg bg-white text-black placeholder-gray-500 '
-    'focus:outline-none focus:ring-2 focus:ring-chain-gold'
-)
+from core.forms import INPUT   # one definition of the field styling, shared
+
+from .models import Item
 
 
 class ItemForm(forms.ModelForm):
@@ -29,7 +27,7 @@ class ItemForm(forms.ModelForm):
             }),
             'image': forms.FileInput(attrs={'class': INPUT, 'accept': 'image/*'}),
             'badge': forms.Select(attrs={'class': INPUT}),
-            'is_sold': forms.CheckboxInput(attrs={'class': 'w-5 h-5 accent-chain-gold'}),
+            'is_sold': forms.CheckboxInput(attrs={'class': 'w-5 h-5 accent-antique'}),
         }
         labels = {'is_sold': 'Mark as sold', 'badge': 'Corner badge'}
 

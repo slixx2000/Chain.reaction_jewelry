@@ -2,33 +2,40 @@
 
 {% block title %}Contact{% endblock %}
 {% block description %}Get in touch with Chain Reaction about a piece, a sourcing request, or an order.{% endblock %}
+{% block main_class %}{% endblock %}
 
 {% block content %}
-    <div class="max-w-2xl mx-auto">
-        <h1 class="text-2xl sm:text-3xl font-bold text-chain-gold mb-4">Get in touch</h1>
-        <p class="text-gray-300 mb-8">
-            Questions about a piece, something you'd like us to look for, or an order you've
-            placed? Message us and we'll get back to you.
-        </p>
+<div class="px-5 sm:px-8 py-16 sm:py-24">
+  <div class="max-w-2xl mx-auto">
+    <p class="caps text-antique mb-4">Contact</p>
+    <h1 class="font-display text-4xl sm:text-5xl mb-6">Say hello.</h1>
+    <p class="text-ivory-dim mb-10 max-w-lg">
+      Questions about a piece, something you'd like us to look for, or an order
+      you've placed — message us and we'll get back to you.
+    </p>
 
-        <div class="bg-chain-slate-dark rounded-lg p-4 sm:p-6 space-y-4">
-            <div>
-                <p class="text-sm uppercase tracking-wide text-gray-400">Email</p>
-                <a href="mailto:mutangishaun7@gmail.com" class="text-chain-gold text-base sm:text-lg hover:underline break-all">mutangishaun7@gmail.com</a>
-            </div>
-            <div>
-                <p class="text-sm uppercase tracking-wide text-gray-400">Based in</p>
-                <p class="text-lg text-white">Lusaka, Zambia &middot; prices shown in ZMW</p>
-            </div>
-            <div>
-                <p class="text-sm uppercase tracking-wide text-gray-400">Orders</p>
-                <p class="text-gray-300">
-                    Online payment isn't live yet. Add pieces to your bag, then email us the items
-                    and we'll arrange payment and delivery.
-                </p>
-            </div>
-        </div>
+    <dl>
+      <div class="py-6 border-t border-ivory/15">
+        <dt class="caps text-ivory/40 mb-2">Email</dt>
+        <dd><a href="mailto:mutangishaun7@gmail.com"
+               class="text-lg text-antique hover:underline underline-offset-4 break-all">mutangishaun7@gmail.com</a></dd>
+      </div>
+      <div class="py-6 border-t border-ivory/15">
+        <dt class="caps text-ivory/40 mb-2">Based in</dt>
+        <dd class="text-lg text-ivory">Lusaka, Zambia &middot; prices in ZMW</dd>
+      </div>
+      <div class="py-6 border-t border-b border-ivory/15">
+        <dt class="caps text-ivory/40 mb-2">Looking for something?</dt>
+        <dd class="text-ivory-dim">
+          If it isn't in the collection it might be on the next order. Tell us the
+          piece you have in mind and we'll say honestly whether we can find it.
+        </dd>
+      </div>
+    </dl>
 
-        <a href="{% url 'item:items' %}" class="inline-block mt-8 text-sm text-gray-300 hover:text-chain-gold">&larr; Back to the collection</a>
-    </div>
+    <a href="{% url 'item:items' %}" class="inline-block mt-10 caps text-ivory/50 hover:text-ivory transition-colors">
+      &larr; Back to the collection
+    </a>
+  </div>
+</div>
 {% endblock %}

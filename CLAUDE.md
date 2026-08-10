@@ -128,9 +128,13 @@ Landing page and shared chrome follow an editorial system: obsidian/ink
 surfaces, warm ivory text, antique gold used sparingly as an accent, Bodoni
 Moda display over Hanken Grotesk body, **sharp 0px corners**, hairline ivory
 rules, no shadows (depth comes from tonal layering and the `.grain` overlay),
-and deliberate asymmetry. Tokens live in the Tailwind config in `base.html`
-alongside the older `chain-*` colours, which inner pages still use — that
-config is the source of truth now, not any external design file.
+and deliberate asymmetry. Tokens live in the Tailwind config in `base.html`,
+which is the source of truth — every page is on them and the older `chain-*`
+palette has been deleted, so do not reintroduce it.
+
+Field styling is `INPUT` in `core/forms.py`, imported by `item/forms.py` and
+`orders/forms.py` — one definition, and `core/_form.html` renders any form
+body with caps labels. Templates never restate either.
 
 The landing page banner is `SiteContent.hero_image`, a deliberate single-row
 model edited at **admin → Site content**. Always read it via
@@ -147,16 +151,15 @@ partial include itself and blew the stack.
 
 ## Conventions
 
-- Tailwind comes from the CDN in `base.html`, with a custom `chain-*` palette
-  (`chain-gold`, `chain-slate-dark`, `chain-wine`) defined inline in that
-  `<script>` block. New colors go there, not in a config file.
-- Form field styling lives in Python: `INPUT` in `core/forms.py` and
-  `item/forms.py` is the shared Tailwind class string, applied via
+- Tailwind comes from the CDN in `base.html`; the palette and fonts are defined
+  inline in that `<script>` block. New tokens go there, not in a config file.
+- Form field styling lives in Python: `INPUT` in `core/forms.py`, applied via
   `StyledFormMixin` (auth forms) or `Meta.widgets` (`ItemForm`). Templates never
   restate it.
-- Three partials carry the repeated markup — reuse them instead of copying:
-  `core/_form.html` (whole form body: errors, labels, fields) and
-  `item/_card.html` (product card, incl. sold badge and add-to-bag form).
+- Partials carry the repeated markup — reuse them instead of copying:
+  `core/_form.html` (form body), `item/_card.html` (product card with badge and
+  sold state), `core/_placeholder.html` (missing photo),
+  `cart/_quantity_controls.html` (stepper, rendered twice per row).
 - `ItemForm` serves both create and edit; there is no separate edit form.
 - All URL namespaces are set (`core:`, `item:`, `cart:`, `dashboard:`); always
   reverse with the namespace.
@@ -164,5 +167,5 @@ partial include itself and blew the stack.
   (consumed by the vanilla JS at the bottom of `base.html` to update the badge
   and modal), plain POST gets a same-host-checked referer redirect. Keep both
   paths working — the JS falls back to a full navigation on any error.
-- There is no order/checkout/payment model. The checkout button deliberately
-  links to `core:contact` and says so; don't fake a payment flow.
+- Checkout is real: the bag links to `orders:checkout`, which takes mobile money
+  through Bila. See the payment flow section above before touching it.
