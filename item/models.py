@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+from core.validators import validate_image_upload
+
 class Category(models.Model):
     name = models.CharField(max_length=255)
 
@@ -29,7 +31,8 @@ class Item(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='item_images/', blank=True, null=True) 
+    image = models.ImageField(upload_to='item_images/', blank=True, null=True,
+                              validators=[validate_image_upload])
     badge = models.CharField(
         max_length=20, choices=Badge.choices, blank=True,
         help_text='Optional label shown on the corner of the card. Sold pieces never show one.',

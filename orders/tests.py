@@ -7,6 +7,8 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.core import mail
+from django.core.management import call_command
+from django.utils import timezone
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -363,3 +365,64 @@ class WebhookViewTests(TestCase):
         response = self.post({'data': {'reference': 'CR-DOESNOTEXIST'}})
         self.assertEqual(response.status_code, 200)
         get_collection.assert_not_called()
+
+
+@override_settings(CRON_TOKEN='cron-secret')
+class ReconcileTests(TestCase):
+    """A missed webhook must not leave money received and unrecorded."""
+
+    def setUp(self):
+        seller = User.objects.create_user('seller', password='x')
+        self.item = Item.objects.create(
+            category=Category.objects.create(name='Rings'), name='Gold Band',
+            price=Decimal('100.00'), created_by=seller,
+        )
+        self.order = Order.objects.create(
+            full_name='Ada', phone='260977123456', operator='airtel',
+            delivery_address='Lusaka', total=Decimal('100.00'),
+        )
+        self.order.items.create(item=self.item, name=self.item.name, price=self.item.price)
+        # Age it past the two-minute grace period.
+        Order.objects.filter(pk=self.order.pk).update(
+            created_at=timezone.now() - timezone.timedelta(minutes=30))
+
+    def post(self, token='cron-secret'):
+        return self.client.post(reverse('orders:reconcile'), headers={'x-cron-token': token})
+
+    @patch('orders.services.bila.get_collection')
+    def test_missed_webhook_is_settled_and_stock_marked_sold(self, get_collection):
+        get_collection.return_value = {'status': 'successful'}
+        response = self.post()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['settled'], 1)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.PAID)
+        self.item.refresh_from_db()
+        self.assertTrue(self.item.is_sold)
+
+    @patch('orders.services.bila.get_collection')
+    def test_bad_token_changes_nothing(self, get_collection):
+        response = self.post(token='wrong')
+        self.assertEqual(response.status_code, 403)
+        get_collection.assert_not_called()
+
+    @override_settings(CRON_TOKEN='')
+    @patch('orders.services.bila.get_collection')
+    def test_endpoint_is_off_when_no_token_is_configured(self, get_collection):
+        self.assertEqual(self.post().status_code, 404)
+        get_collection.assert_not_called()
+
+    @patch('orders.services.bila.get_collection')
+    def test_very_recent_orders_are_left_alone(self, get_collection):
+        """The customer is probably still typing their PIN."""
+        Order.objects.filter(pk=self.order.pk).update(created_at=timezone.now())
+        self.assertEqual(self.post().json()['checked'], 0)
+        get_collection.assert_not_called()
+
+    @patch('orders.services.bila.get_collection')
+    def test_management_command_settles_too(self, get_collection):
+        get_collection.return_value = {'status': 'successful'}
+        call_command('reconcile_orders', verbosity=0)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.PAID)

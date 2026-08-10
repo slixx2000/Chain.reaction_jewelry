@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Something broke | Chain Reaction</title>
+  <!--
+    Deliberately standalone: no template inheritance, no context processors, no
+    database. This page renders when something is already broken, so it must not
+    depend on anything that might be the thing that broke.
+  -->
+  <style>
+    body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+           background:#131410; color:#f1eee7; font-family:Helvetica,Arial,sans-serif;
+           text-align:center; padding:24px; }
+    .eyebrow { font-size:12px; font-weight:600; letter-spacing:.15em; text-transform:uppercase;
+               color:#d6a21a; margin:0 0 16px; }
+    h1 { font-family:Georgia,serif; font-size:clamp(32px,6vw,56px); font-weight:400; margin:0 0 20px; }
+    p { color:#c4c7c7; line-height:1.6; margin:0 0 32px; }
+    a { display:inline-block; padding:16px 40px; background:#f1eee7; color:#090909;
+        text-decoration:none; font-size:12px; font-weight:600; letter-spacing:.15em;
+        text-transform:uppercase; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">500</p>
+    <h1>Something broke on our side.</h1>
+    <p>
+      This one is our fault, not yours. We've been notified.<br>
+      If you were paying for an order, check your phone before trying again —
+      the payment may still have gone through.
+    </p>
+    <a href="/">Back to the shop</a>
+  </main>
+</body>
+</html>

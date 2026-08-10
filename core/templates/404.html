@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Not found{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="px-5 sm:px-8 py-24 sm:py-32">
+  <div class="max-w-xl mx-auto text-center">
+    <p class="caps text-antique mb-4">404</p>
+    <h1 class="font-display text-4xl sm:text-6xl mb-6">This page isn't here.</h1>
+    <p class="text-ivory-dim mb-10">
+      The piece may have sold and been taken down, or the link may be wrong.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="{% url 'item:items' %}" class="caps px-10 py-4 bg-ivory text-obsidian hover:bg-antique transition-colors">
+        See the collection
+      </a>
+      <a href="{% url 'core:contact' %}" class="caps px-10 py-4 border border-ivory/40 text-ivory hover:bg-ivory hover:text-obsidian transition-colors">
+        Contact us
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

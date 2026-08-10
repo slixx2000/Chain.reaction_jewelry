@@ -1,5 +1,7 @@
 from django.db import models
 
+from .validators import validate_image_upload
+
 
 class SiteContent(models.Model):
     """Editable bits of the storefront that are not products.
@@ -9,7 +11,7 @@ class SiteContent(models.Model):
     """
 
     hero_image = models.ImageField(
-        upload_to='site/', blank=True,
+        upload_to='site/', blank=True, validators=[validate_image_upload],
         help_text='Landing page banner. Landscape, at least 1600px wide. '
                   'Leave empty to show a placeholder instead.',
     )

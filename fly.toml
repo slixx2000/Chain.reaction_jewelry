@@ -1,0 +1,24 @@
+# Fly.io — jnb is Johannesburg, the closest region to Lusaka.
+# Deploy:  fly launch --no-deploy   then   fly deploy
+app = "chainreaction"
+primary_region = "jnb"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8000"
+  DJANGO_DEBUG = "False"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  # Keep one machine warm. Scaling to zero risks missing a Bila webhook while
+  # the app is asleep; the reconcile cron is the backstop, not the plan.
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

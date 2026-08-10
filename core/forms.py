@@ -1,5 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import (AuthenticationForm, PasswordResetForm,
+                                       SetPasswordForm, UserCreationForm)
 from django.contrib.auth.models import User
 
 # Editorial input: a single hairline under the field, no box. Shared by every
@@ -37,3 +38,11 @@ class SignUpForm(StyledFormMixin, UserCreationForm):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError('An account with this email already exists.')
         return email
+
+
+class StyledPasswordResetForm(StyledFormMixin, PasswordResetForm):
+    pass
+
+
+class StyledSetPasswordForm(StyledFormMixin, SetPasswordForm):
+    pass

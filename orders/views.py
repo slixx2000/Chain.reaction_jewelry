@@ -1,11 +1,14 @@
+import hmac
 import json
 import logging
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from cart.cart import Cart
@@ -153,3 +156,38 @@ def _find_reference(payload):
             return seen['reference']
         seen = seen.get('data')
     return None
+
+
+@csrf_exempt
+@require_POST
+def reconcile_pending(request):
+    """Settle orders whose webhook never arrived. Called by an external scheduler.
+
+    Same work as `manage.py reconcile_orders`, over HTTP, because free hosts
+    vary in whether they offer cron. Authenticated with a shared secret in the
+    `X-Cron-Token` header — a header, not a query parameter, so the secret does
+    not end up in access logs.
+    """
+    expected = settings.CRON_TOKEN
+    if not expected:
+        raise Http404  # Endpoint is off unless a token is configured.
+
+    provided = request.headers.get('X-Cron-Token', '')
+    if not hmac.compare_digest(provided, expected):
+        logger.warning('Rejected reconcile call with a bad token')
+        return JsonResponse({'detail': 'forbidden'}, status=403)
+
+    now = timezone.now()
+    pending = Order.objects.filter(
+        status=Order.Status.PENDING,
+        created_at__lte=now - timezone.timedelta(minutes=2),
+        created_at__gte=now - timezone.timedelta(hours=72),
+    )
+
+    settled = 0
+    for order in pending:
+        if services.refresh_from_bila(order).is_settled:
+            settled += 1
+
+    logger.info('Reconcile run: %s checked, %s settled', len(pending), settled)
+    return JsonResponse({'checked': len(pending), 'settled': settled})

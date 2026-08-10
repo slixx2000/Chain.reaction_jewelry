@@ -22,12 +22,23 @@ utility classes there.
 
 ```bash
 .venv/bin/python manage.py runserver
+.venv/bin/python manage.py reconcile_orders --dry-run   # stuck-order sweep
 .venv/bin/python manage.py makemigrations && .venv/bin/python manage.py migrate
 .venv/bin/python manage.py test                                   # all apps
 .venv/bin/python manage.py test cart.tests.CartTests.test_add_and_total_uses_exact_decimals
 ```
 
-Tests live in `cart/tests.py` (cart behaviour, delete authorization) and
+Deployment lives in `Dockerfile` / `fly.toml`; `hostingplan.md` tracks what is
+still missing before launch. `DATABASE_URL` switches SQLite to Postgres, and
+static files are served by WhiteNoise, so `collectstatic` must succeed.
+
+An order can be paid without its webhook arriving (sleeping host, redeploy,
+network blip). `manage.py reconcile_orders` and the token-protected
+`POST /orders/cron/reconcile/` sweep those up — one of them **must** be on a
+schedule in production, or money arrives unrecorded.
+
+Tests live in `cart/tests.py` (cart behaviour, delete authorization),
+`core/tests_production.py` (password reset, uploads, error pages) and
 `orders/tests.py` (phone parsing, webhook signatures, the payment state
 machine). Payment tests patch `orders.services.bila.*` — never let a test hit
 the real API.

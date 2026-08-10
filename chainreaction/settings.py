@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -47,6 +48,12 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # HSTS is hard to undo — leave at 0 until HTTPS is confirmed working.
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', 0))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = bool(SECURE_HSTS_SECONDS)
+    SECURE_HSTS_PRELOAD = bool(SECURE_HSTS_SECONDS)
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
@@ -99,8 +106,13 @@ BILA_WEBHOOK_SECRET = os.environ.get('BILA_WEBHOOK_SECRET', '')
 BILA_COUNTRY = os.environ.get('BILA_COUNTRY', 'zm')
 BILA_FEE_BEARER = os.environ.get('BILA_FEE_BEARER', 'merchant')  # merchant | customer
 
+# Shared secret for the reconciliation endpoint an external scheduler calls.
+# Blank disables the endpoint entirely.
+CRON_TOKEN = os.environ.get('CRON_TOKEN', '')
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -134,10 +146,12 @@ WSGI_APPLICATION = 'chainreaction.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+        conn_health_checks=True,
+        ssl_require=not DEBUG and bool(os.environ.get('DATABASE_URL')),
+    )
 }
 
 
@@ -165,7 +179,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Lusaka'
 
 USE_I18N = True
 
@@ -176,5 +190,39 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else []
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    # Compresses and fingerprints static files so they can be cached forever.
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+}
+
+# Reject oversized uploads before they reach a form. A phone photo is ~5MB;
+# anything past this is either a mistake or an attack.
+MAX_UPLOAD_BYTES = int(os.environ.get('MAX_UPLOAD_BYTES', 8 * 1024 * 1024))
+DATA_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_BYTES + 1024 * 1024
+
+# Logging. Without this every logger.exception in the payment path is silently
+# discarded, which would make a failed payment invisible.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {'format': '{asctime} {levelname} {name} {message}', 'style': '{'},
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'standard'},
+    },
+    'root': {'handlers': ['console'], 'level': 'INFO'},
+    'loggers': {
+        'django': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        # The money paths stay verbose whatever else is turned down.
+        'orders': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        'django.security': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+    },
+}
