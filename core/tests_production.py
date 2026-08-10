@@ -255,3 +255,18 @@ class LegalAndDiscoveryTests(TestCase):
 
     def test_favicon_is_referenced(self):
         self.assertContains(self.client.get(reverse('core:index')), 'favicon.svg')
+
+
+class StorageConfigTests(TestCase):
+    def test_falls_back_to_local_disk_without_credentials(self):
+        """Partial R2 config must not half-enable remote storage."""
+        from django.conf import settings
+        self.assertFalse(settings.USE_R2)
+        self.assertIn('FileSystemStorage', settings.STORAGES['default']['BACKEND'])
+
+    def test_storage_check_command_runs(self):
+        from django.core.management import call_command
+        from io import StringIO
+        out = StringIO()
+        call_command('check_storage', stdout=out, stderr=StringIO())
+        self.assertIn('write  OK', out.getvalue())

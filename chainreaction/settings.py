@@ -219,8 +219,41 @@ STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# ── Media storage ─────────────────────────────────────────────────────────────
+# Cloudflare R2 when configured, local disk otherwise. On a hosted box the
+# local disk is wiped by every redeploy, so R2 is required before launch.
+R2_ACCESS_KEY_ID = os.environ.get('R2_ACCESS_KEY_ID', '')
+R2_SECRET_ACCESS_KEY = os.environ.get('R2_SECRET_ACCESS_KEY', '')
+R2_BUCKET_NAME = os.environ.get('R2_BUCKET_NAME', '')
+R2_ENDPOINT_URL = os.environ.get('R2_ENDPOINT_URL', '')
+# Public read URL for the bucket, e.g. https://media.chainreactionjewelry.site
+R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', '').rstrip('/')
+
+USE_R2 = bool(R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY and R2_BUCKET_NAME and R2_ENDPOINT_URL)
+
+if USE_R2:
+    _media_storage = {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'bucket_name': R2_BUCKET_NAME,
+            'endpoint_url': R2_ENDPOINT_URL,
+            'access_key': R2_ACCESS_KEY_ID,
+            'secret_key': R2_SECRET_ACCESS_KEY,
+            'region_name': 'auto',          # R2 has no regions
+            'signature_version': 's3v4',
+            'default_acl': None,            # R2 rejects ACLs outright
+            'querystring_auth': False,      # bucket is served publicly
+            'file_overwrite': False,        # keep old files if a name repeats
+            # Serve through the custom domain so bytes come from Cloudflare's
+            # edge rather than the bucket endpoint.
+            'custom_domain': R2_PUBLIC_URL.split('://')[-1] or None,
+        },
+    }
+else:
+    _media_storage = {'BACKEND': 'django.core.files.storage.FileSystemStorage'}
+
 STORAGES = {
-    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'default': _media_storage,
     # Compresses and fingerprints static files so they can be cached forever.
     # The manifest backend requires collectstatic to have run, which is not true
     # under tests or in dev, so it is production-only.

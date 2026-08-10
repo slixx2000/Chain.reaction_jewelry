@@ -16,7 +16,7 @@ Ordered by whether it *stops* you launching.
 |---|-----|----------------------|-----|
 | 1 | ~~**`STATIC_ROOT` is not set**~~ ✅ | `collectstatic` fails, so the admin loads with no CSS in production | Set `STATIC_ROOT` + add WhiteNoise |
 | 2 | **SQLite on an ephemeral disk** (code ready — set `DATABASE_URL`) | Every redeploy wipes orders, customers, products | Managed Postgres |
-| 3 | **`MEDIA_ROOT` is a local folder** | Every product photo disappears on redeploy | Object storage (R2 / Cloudinary) |
+| 3 | **`MEDIA_ROOT` is a local folder** (code ready — set the four `R2_*` vars) | Every product photo disappears on redeploy | Object storage (R2 / Cloudinary) |
 | 4 | **`SECRET_KEY` still the `django-insecure-` default** | Session and password-reset tokens are forgeable. It is also **already public in git history** | Generate a new one, set via env |
 | 5 | ~~**No WSGI server**~~ ✅ | `runserver` is not safe or fast enough for production | `gunicorn` in requirements |
 | 6 | ~~**`TIME_ZONE = 'UTC'`**~~ ✅ | Order times in the admin and receipts read 2 hours behind Lusaka | `Africa/Lusaka` |
@@ -222,6 +222,22 @@ media, image resizing, rate limiting, Sentry, Terms/Privacy/Returns pages.
 - [ ] Sentry → copy DSN
 - [ ] Point the domain at Cloudflare
 - [x] `DJANGO_SECRET_KEY` generated (a separate one is still needed for prod)
+
+### Decisions made
+- **Host: Fly.io**, `jnb` (Johannesburg) — `Dockerfile` and `fly.toml` are ready.
+- **Media: Cloudflare R2** — wired via django-storages, inert until the four
+  `R2_*` variables are set. Verify with `manage.py check_storage`.
+- **Email: Resend** — verified and delivering.
+
+### Proven working (2026-08-10, against the real sandbox)
+- Full purchase over a public tunnel: checkout → Bila → paid → stock marked
+  sold → bag cleared → receipt and seller alert delivered.
+- Two real bugs this caught, both since fixed: a wrong `BILA_WALLET_ID` failing
+  every checkout, and the seller alert being lost when a second SMTP connection
+  timed out.
+- Bila's webhook was never registered (the sandbox account had zero configs),
+  so delivery is still unproven. Not a blocker: both purchases settled through
+  polling, and `reconcile_orders` covers the closed-tab case.
 
 ### Phase 3 — wire up and test in sandbox
 - [ ] Fill in `.env`, deploy
