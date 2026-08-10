@@ -43,16 +43,18 @@
 
 <!-- ============ 1. Editorial hero ============ -->
 <section class="relative min-h-[88vh] md:min-h-screen flex items-center justify-center overflow-hidden">
+  {# Swap this image in the admin: Site content → Landing page banner. #}
   <div class="absolute inset-0 z-0">
-    {% if hero_item and hero_item.image %}
-      <img src="{{ hero_item.image.url }}" alt="{{ hero_item.name }}"
-           class="kenburns w-full h-full object-cover object-center opacity-50">
+    {% if site.hero_image %}
+      <img src="{{ site.hero_image.url }}" alt="{{ site.hero_alt_text }}"
+           class="kenburns w-full h-full object-cover object-center opacity-60">
+      <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/70"></div>
     {% else %}
       <div class="kenburns w-full h-full">
-        {% include 'core/_placeholder.html' with label="Hero campaign image" note="1600 × 1000 · a piece worn close up, low light" %}
+        {% include 'core/_placeholder.html' with label="Hero campaign image" note="1600 × 1000 · landscape, low light, subject off-centre" %}
       </div>
+      <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/80"></div>
     {% endif %}
-    <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/70"></div>
   </div>
 
   <div class="relative z-10 text-center px-5 sm:px-8 max-w-5xl">

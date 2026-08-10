@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from item.models import Category
 from . import storefront
 from .forms import SignUpForm
+from .models import SiteContent
 # Create your views here.
 
 
@@ -12,6 +13,7 @@ def index(request):
     new_arrivals = storefront.new_arrivals()
 
     return render(request, 'core/index.html', {
+        'site': SiteContent.load(),
         'hero_item': new_arrivals[0] if new_arrivals else None,
         'new_arrivals': new_arrivals,
         # The whole catalogue, not just the slice shown above.

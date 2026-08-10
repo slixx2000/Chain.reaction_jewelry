@@ -132,6 +132,13 @@ and deliberate asymmetry. Tokens live in the Tailwind config in `base.html`
 alongside the older `chain-*` colours, which inner pages still use — that
 config is the source of truth now, not any external design file.
 
+The landing page banner is `SiteContent.hero_image`, a deliberate single-row
+model edited at **admin → Site content**. Always read it via
+`SiteContent.load()`, which creates the row on first use so templates never
+have to handle it missing; `save()` pins `pk=1` and drops `force_insert` so
+`create()` updates instead of hitting the unique constraint. Empty image falls
+back to the labelled placeholder — never hard-code a hero path.
+
 `core/_placeholder.html` renders a labelled block wherever a photo has not been
 shot yet. **Multi-line `{# #}` comments do not exist in Django** — it only
 closes on the same line, so a `{% include %}` written inside one is executed for
