@@ -133,24 +133,24 @@
 
   <div id="add-to-cart-modal" class="hidden fixed inset-0 z-[70] bg-black/60 px-4 py-6 overflow-y-auto" aria-hidden="true">
     <div class="min-h-full flex items-center justify-center">
-      <div id="add-to-cart-dialog" role="dialog" aria-modal="true" aria-labelledby="add-to-cart-title" class="w-full max-w-md rounded-xl border border-chain-gold/30 bg-chain-slate-dark p-5 shadow-2xl">
+      <div id="add-to-cart-dialog" role="dialog" aria-modal="true" aria-labelledby="add-to-cart-title" class="w-full max-w-md border border-ivory/25 bg-obsidian p-6">
         <div class="flex items-start justify-between gap-3">
-          <h2 id="add-to-cart-title" class="text-xl font-bold text-chain-gold">Added to Bag</h2>
-          <button id="close-add-to-cart-modal" type="button" aria-label="Close" class="w-8 h-8 rounded-md text-2xl leading-none text-white hover:bg-white/10">&times;</button>
+          <h2 id="add-to-cart-title" class="caps text-antique">Added to Bag</h2>
+          <button id="close-add-to-cart-modal" type="button" aria-label="Close" class="w-8 h-8 text-2xl leading-none text-ivory/60 hover:text-ivory transition-colors">&times;</button>
         </div>
 
         <div class="mt-4 flex items-start gap-3">
-          <img id="modal-item-image" src="" alt="Added item" class="w-16 h-16 object-cover rounded-md hidden">
+          <img id="modal-item-image" src="" alt="Added item" class="w-20 h-20 object-cover hidden">
           <div>
-            <p id="modal-item-name" class="font-semibold text-white"></p>
-            <p id="modal-item-price" class="text-chain-gold"></p>
-            <p id="modal-cart-count" class="text-sm text-gray-300 mt-1"></p>
+            <p id="modal-item-name" class="caps text-ivory"></p>
+            <p id="modal-item-price" class="caps text-antique mt-1"></p>
+            <p id="modal-cart-count" class="text-xs text-ivory-dim mt-2"></p>
           </div>
         </div>
 
         <div id="add-to-cart-actions" class="mt-5 grid grid-cols-2 gap-3">
-          <a href="{% url 'cart:cart_summary' %}" class="text-center py-2 rounded-lg border border-chain-gold text-chain-gold font-semibold hover:bg-chain-gold hover:text-black transition-colors">Go to Bag</a>
-          <a href="{% url 'cart:cart_summary' %}#checkout-button" class="text-center py-2 rounded-lg bg-chain-gold text-black font-semibold hover:bg-chain-gold-dark transition-colors">Pay</a>
+          <a href="{% url 'cart:cart_summary' %}" class="text-center caps text-[10px] py-3 border border-ivory/40 text-ivory hover:bg-ivory hover:text-obsidian transition-colors">Go to Bag</a>
+          <a href="{% url 'cart:cart_summary' %}#checkout-button" class="text-center caps text-[10px] py-3 bg-ivory text-obsidian hover:bg-antique transition-colors">Pay</a>
         </div>
       </div>
     </div>
@@ -350,7 +350,7 @@
             }
 
             if (modalItemPrice) {
-              modalItemPrice.textContent = itemPrice ? 'Price: ZMW ' + itemPrice : '';
+              modalItemPrice.textContent = itemPrice ? 'ZMW ' + itemPrice : '';
             }
 
             if (modalCartCount && typeof data.cart_count !== 'undefined') {

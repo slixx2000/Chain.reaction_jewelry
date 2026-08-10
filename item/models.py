@@ -20,9 +20,9 @@ class Item(models.Model):
 
     # Tailwind classes per badge, kept next to the choices so the two cannot drift.
     BADGE_STYLES = {
-        Badge.NEW: 'bg-chain-gold text-black',
-        Badge.BEST_SELLER: 'bg-chain-wine text-white',
-        Badge.LIMITED: 'bg-white text-black',
+        Badge.NEW: 'bg-antique text-obsidian',
+        Badge.BEST_SELLER: 'bg-burgundy text-ivory',
+        Badge.LIMITED: 'bg-ivory text-obsidian',
     }
 
     category = models.ForeignKey(Category, related_name='items', on_delete=models.CASCADE)
