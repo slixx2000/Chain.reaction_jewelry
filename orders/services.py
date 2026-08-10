@@ -115,13 +115,21 @@ def apply_collection_status(order, data):
 
 
 def refresh_from_bila(order):
-    """Poll Bila for the truth. Used by the status page and after a webhook ping."""
+    """Poll Bila for the truth. Used by the status page and after a webhook ping.
+
+    A refresh is read-only, so any failure just means "show the last state we
+    know". The customer is looking at this page seconds after paying — it must
+    never be the thing that 500s, whatever Bila or the network does.
+    """
     if order.is_settled:
         return order
     try:
         data = bila.get_collection(order.reference)
     except bila.BilaError as exc:
         logger.warning('Could not refresh order %s: %s', order.reference, exc)
+        return order
+    except Exception:
+        logger.exception('Unexpected failure refreshing order %s', order.reference)
         return order
     return apply_collection_status(order, data)
 

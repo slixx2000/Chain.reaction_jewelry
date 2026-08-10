@@ -1,21 +1,26 @@
-{# Renders a whole form body: non-field errors, then every field. Expects `form`. #}
+{% comment %}
+Renders a whole form body: non-field errors, then every field with a caps
+label above its rule. Expects `form`.
+{% endcomment %}
 {% if form.non_field_errors %}
-    <div class="bg-red-900/40 border border-red-500 text-red-200 p-3 rounded-lg text-sm">
-        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+    <div class="border border-burgundy bg-burgundy/20 px-4 py-3">
+        {% for error in form.non_field_errors %}
+            <p class="text-sm text-ivory">{{ error }}</p>
+        {% endfor %}
     </div>
 {% endif %}
 
 {% for field in form %}
-    <div class="space-y-1">
-        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-200">
-            {{ field.label }}{% if field.field.required %} <span class="text-chain-gold">*</span>{% endif %}
+    <div>
+        <label for="{{ field.id_for_label }}" class="caps text-ivory/50 block mb-2">
+            {{ field.label }}{% if field.field.required %} <span class="text-antique">*</span>{% endif %}
         </label>
         {{ field }}
         {% for error in field.errors %}
-            <p class="text-red-400 text-sm">{{ error }}</p>
+            <p class="text-sm text-burgundy-light mt-2">{{ error }}</p>
         {% endfor %}
         {% if field.help_text %}
-            <p class="text-gray-400 text-xs">{{ field.help_text|safe }}</p>
+            <p class="text-xs text-ivory/40 mt-2 leading-relaxed">{{ field.help_text|safe }}</p>
         {% endif %}
     </div>
 {% endfor %}

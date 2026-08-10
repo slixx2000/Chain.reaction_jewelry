@@ -345,6 +345,20 @@ class WebhookViewTests(TestCase):
         self.assertEqual(self.order.paid_at, first)
 
     @patch('orders.services.bila.get_collection')
+    def test_status_page_survives_an_unexpected_provider_failure(self, get_collection):
+        """The customer has just paid; this page must not 500 whatever Bila does."""
+        get_collection.side_effect = RuntimeError('provider exploded')
+        self.client.session.setdefault('order_refs', [])
+        session = self.client.session
+        session['order_refs'] = [self.order.reference]
+        session.save()
+
+        response = self.client.get(reverse('orders:status', args=[self.order.reference]))
+        self.assertEqual(response.status_code, 200)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.PENDING)
+
+    @patch('orders.services.bila.get_collection')
     def test_unknown_reference_is_acknowledged_without_side_effects(self, get_collection):
         response = self.post({'data': {'reference': 'CR-DOESNOTEXIST'}})
         self.assertEqual(response.status_code, 200)

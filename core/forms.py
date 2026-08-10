@@ -2,9 +2,13 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 
+# Editorial input: a single hairline under the field, no box. Shared by the
+# auth forms and checkout. item/forms.py still carries the older boxed style
+# because the seller-facing pages have not been converted yet.
 INPUT = (
-    'w-full px-4 py-2 border rounded-lg bg-white text-black placeholder-gray-500 '
-    'focus:outline-none focus:ring-2 focus:ring-chain-gold'
+    'w-full bg-transparent border-0 border-b border-ivory/30 px-0 py-2 '
+    'text-ivory placeholder-ivory/25 focus:border-antique focus:outline-none '
+    'focus:ring-0 transition-colors'
 )
 
 

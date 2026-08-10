@@ -1,87 +1,133 @@
 {% extends 'core/base.html' %}
 
 {% block title %}Order {{ order.reference }}{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .pulse-rule { animation: sweep 1.8s ease-in-out infinite; transform-origin: left; }
+  @keyframes sweep { 0%,100% { transform: scaleX(.15) } 50% { transform: scaleX(1) } }
+  @media (prefers-reduced-motion: reduce) {
+    .pulse-rule { animation: none; transform: scaleX(1); }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-    <div class="max-w-2xl mx-auto">
-        <div id="order-panel" class="bg-chain-slate-dark rounded-lg p-6 sm:p-8 text-center"
-             data-state-url="{% url 'orders:state' reference=order.reference %}"
-             data-settled="{{ order.is_settled|yesno:'true,false' }}">
+<div class="px-5 sm:px-8 py-10 sm:py-16">
+  <div class="max-w-2xl mx-auto">
 
-            {% if order.status == 'paid' %}
-                <div class="text-5xl mb-4">&#10003;</div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-chain-gold mb-2">Payment received</h1>
-                <p class="text-gray-300">Thank you, {{ order.full_name }}. We'll be in touch about delivery.</p>
-            {% elif order.status == 'failed' %}
-                <h1 class="text-2xl sm:text-3xl font-bold text-red-400 mb-2">Payment not completed</h1>
-                <p class="text-gray-300">{{ order.failure_reason|default:'The payment was not completed. Nothing was charged.' }}</p>
-            {% elif order.status == 'cancelled' %}
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-300 mb-2">Order cancelled</h1>
-            {% else %}
-                <div id="spinner" class="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-chain-gold/30 border-t-chain-gold animate-spin"></div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-chain-gold mb-2">Check your phone</h1>
-                <p class="text-gray-300">
-                    We sent a payment prompt to <strong>{{ order.phone }}</strong> ({{ order.operator|upper }}).
-                    Enter your mobile money PIN to approve ZMW {{ order.total|floatformat:2 }}.
-                </p>
-                <p class="text-sm text-gray-400 mt-3">This page updates on its own — no need to refresh.</p>
-            {% endif %}
+    <div id="order-panel"
+         data-state-url="{% url 'orders:state' reference=order.reference %}"
+         data-settled="{{ order.is_settled|yesno:'true,false' }}">
 
-            <p class="mt-6 text-sm text-gray-400">Order reference <span class="font-mono text-chain-gold break-all">{{ order.reference }}</span></p>
-        </div>
+      {% if order.status == 'paid' %}
+        <p class="caps text-antique mb-4">Paid</p>
+        <h1 class="font-display text-4xl sm:text-5xl mb-6">Thank you, {{ order.full_name|truncatewords:1 }}.</h1>
+        <p class="text-ivory-dim">
+          Your payment came through. We'll be in touch about delivery{% if order.email %}, and a
+          receipt is on its way to {{ order.email }}{% endif %}.
+        </p>
 
-        <div class="mt-6 bg-chain-slate-dark rounded-lg p-4 sm:p-6">
-            <h2 class="text-xl font-bold text-chain-gold mb-4">What you ordered</h2>
-            <ul class="space-y-2">
-                {% for line in order.items.all %}
-                    <li class="flex justify-between gap-3 text-sm">
-                        <span class="text-gray-200">{{ line.quantity }} &times; {{ line.name }}</span>
-                        <span class="text-white whitespace-nowrap">ZMW {{ line.subtotal|floatformat:2 }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-            <div class="flex justify-between font-semibold text-white mt-4 pt-3 border-t border-chain-gold/40">
-                <span>Total</span>
-                <span>ZMW {{ order.total|floatformat:2 }}</span>
-            </div>
-            <p class="mt-4 text-sm text-gray-400">Deliver to: {{ order.delivery_address }}</p>
-        </div>
+      {% elif order.status == 'failed' %}
+        <p class="caps text-burgundy-light mb-4">Not completed</p>
+        <h1 class="font-display text-4xl sm:text-5xl mb-6">That didn't go through.</h1>
+        <p class="text-ivory-dim">{{ order.failure_reason|default:'The payment was not completed. Nothing was charged.' }}</p>
 
-        <div class="mt-6 flex flex-wrap gap-3 justify-center">
-            <a href="{% url 'item:items' %}" class="px-6 py-3 border border-chain-gold text-chain-gold rounded-lg hover:bg-chain-gold hover:text-black transition-colors">Keep shopping</a>
-            {% if order.status == 'failed' %}
-                <a href="{% url 'cart:cart_summary' %}" class="px-6 py-3 bg-chain-gold text-black font-semibold rounded-lg hover:bg-chain-gold-dark transition-colors">Try again</a>
-            {% endif %}
-            <a href="{% url 'core:contact' %}" class="px-6 py-3 border border-chain-gold text-chain-gold rounded-lg hover:bg-chain-gold hover:text-black transition-colors">Need help?</a>
-        </div>
+      {% elif order.status == 'cancelled' %}
+        <p class="caps text-ivory/40 mb-4">Cancelled</p>
+        <h1 class="font-display text-4xl sm:text-5xl">This order was cancelled.</h1>
+
+      {% else %}
+        <p class="caps text-antique mb-4">Waiting for you</p>
+        <h1 class="font-display text-4xl sm:text-5xl mb-6">Check your phone.</h1>
+        <div class="h-px bg-antique pulse-rule mb-6"></div>
+        <p class="text-ivory-dim">
+          We sent a payment prompt to <span class="text-ivory">{{ order.phone }}</span>
+          ({{ order.operator|upper }}). Enter your mobile money PIN to approve
+          <span class="text-ivory">ZMW {{ order.total|floatformat:2 }}</span>.
+        </p>
+        <p class="text-sm text-ivory/40 mt-4">This page updates on its own — no need to refresh.</p>
+      {% endif %}
+
+      <p class="caps text-[10px] text-ivory/30 mt-8">
+        Reference <span class="text-antique break-all">{{ order.reference }}</span>
+      </p>
     </div>
 
-    <script>
-      (function () {
-        const panel = document.getElementById('order-panel');
-        if (!panel || panel.dataset.settled === 'true') {
-          return;
-        }
+    <!-- What was ordered -->
+    <section class="mt-14">
+      <p class="caps text-ivory/50 mb-5">What you ordered</p>
+      <ul>
+        {% for line in order.items.all %}
+          <li class="flex justify-between items-baseline gap-4 py-4 border-b border-ivory/15 {% if forloop.first %}border-t{% endif %}">
+            <span class="text-ivory-dim truncate">
+              <span class="text-ivory/40">{{ line.quantity }} &times;</span> {{ line.name }}
+            </span>
+            <span class="caps text-[10px] text-ivory whitespace-nowrap">{{ line.subtotal|floatformat:2 }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="flex justify-between items-baseline pt-5">
+        <span class="caps text-ivory">Total</span>
+        <span class="font-display text-2xl text-antique">ZMW {{ order.total|floatformat:2 }}</span>
+      </div>
 
-        // Mobile money approval takes a while; poll for a few minutes then stop.
-        let attempts = 0;
-        const timer = setInterval(function () {
-          attempts += 1;
-          if (attempts > 60) {
+      <dl class="mt-8 pt-6 border-t border-ivory/15 space-y-3 text-sm">
+        <div class="flex justify-between gap-4">
+          <dt class="caps text-ivory/40">Deliver to</dt>
+          <dd class="text-ivory-dim text-right max-w-xs whitespace-pre-line">{{ order.delivery_address }}</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="caps text-ivory/40">Paid with</dt>
+          <dd class="text-ivory-dim text-right">{{ order.operator|upper }} &middot; {{ order.phone }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <div class="mt-12 flex flex-col sm:flex-row gap-3">
+      {% if order.status == 'failed' %}
+        <a href="{% url 'cart:cart_summary' %}"
+           class="flex-1 text-center caps py-4 bg-ivory text-obsidian hover:bg-antique transition-colors">Try again</a>
+      {% endif %}
+      <a href="{% url 'item:items' %}"
+         class="flex-1 text-center caps py-4 border border-ivory/40 text-ivory hover:bg-ivory hover:text-obsidian transition-colors">
+        Keep looking
+      </a>
+      <a href="{% url 'core:contact' %}"
+         class="flex-1 text-center caps py-4 border border-ivory/40 text-ivory hover:bg-ivory hover:text-obsidian transition-colors">
+        Need help?
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const panel = document.getElementById('order-panel');
+    if (!panel || panel.dataset.settled === 'true') {
+      return;
+    }
+
+    // Mobile money approval takes a while; poll for a few minutes then stop.
+    let attempts = 0;
+    const timer = setInterval(function () {
+      attempts += 1;
+      if (attempts > 60) {
+        clearInterval(timer);
+        return;
+      }
+
+      fetch(panel.dataset.stateUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (data.settled) {
             clearInterval(timer);
-            return;
+            window.location.reload();
           }
-
-          fetch(panel.dataset.stateUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-            .then(function (response) { return response.json(); })
-            .then(function (data) {
-              if (data.settled) {
-                clearInterval(timer);
-                window.location.reload();
-              }
-            })
-            .catch(function () { /* transient — try again on the next tick */ });
-        }, 5000);
-      })();
-    </script>
+        })
+        .catch(function () { /* transient — try again on the next tick */ });
+    }, 5000);
+  })();
+</script>
 {% endblock %}
