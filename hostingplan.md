@@ -210,12 +210,16 @@ account lockout with an admin audit trail.
 media, image resizing, rate limiting, Sentry, Terms/Privacy/Returns pages.
 
 ### Phase 2 — accounts (you do these, then hand me the keys)
-- [ ] Buy a domain, point it at Cloudflare
+- [x] Domain: **chainreactionjewelry.site**
+- [x] **Resend** — domain verified, API key in `.env`. Test receipt and seller
+      alert both delivered to the inbox (not spam) on 2026-08-10, so SPF/DKIM
+      are good. Reply-To correctly resolves to the Gmail inbox.
 - [ ] Neon → copy `DATABASE_URL`
 - [ ] Cloudflare R2 (or Cloudinary) → copy credentials
-- [ ] Resend → verify domain, copy API key
+- [ ] Bila → sandbox key, wallet id, webhook secret
 - [ ] Sentry → copy DSN
-- [ ] Generate a fresh `DJANGO_SECRET_KEY`
+- [ ] Point the domain at Cloudflare
+- [x] `DJANGO_SECRET_KEY` generated (a separate one is still needed for prod)
 
 ### Phase 3 — wire up and test in sandbox
 - [ ] Fill in `.env`, deploy
