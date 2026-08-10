@@ -90,6 +90,11 @@ EMAIL_BACKEND = os.environ.get(
     else 'django.core.mail.backends.console.EmailBackend',
 )
 
+# Where customer replies should land. The DEFAULT_FROM_EMAIL address is
+# send-only on Resend, so replying to a receipt would otherwise bounce.
+# Falls back to the first ORDER_NOTIFY_EMAIL, then to the from-address.
+REPLY_TO_EMAIL = os.environ.get('REPLY_TO_EMAIL', '').strip()
+
 # Who gets told a paid order has landed. Comma-separated for more than one.
 ORDER_NOTIFY_EMAILS = [
     address.strip()

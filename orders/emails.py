@@ -12,13 +12,26 @@ def _absolute(path):
     return f"{settings.SITE_URL.rstrip('/')}{path}"
 
 
+def reply_to_address():
+    """Where a customer's reply should actually arrive.
+
+    DEFAULT_FROM_EMAIL is typically send-only (Resend does not host a mailbox),
+    so replying to a receipt would bounce. Prefer an address someone reads.
+    """
+    if settings.REPLY_TO_EMAIL:
+        return settings.REPLY_TO_EMAIL
+    if settings.ORDER_NOTIFY_EMAILS:
+        return settings.ORDER_NOTIFY_EMAILS[0]
+    return settings.DEFAULT_FROM_EMAIL
+
+
 def _context(order):
     return {
         'order': order,
         'lines': list(order.items.all()),
         'order_url': _absolute(reverse('orders:status', args=[order.reference])),
         'admin_url': _absolute(reverse('admin:orders_order_change', args=[order.pk])),
-        'shop_email': settings.DEFAULT_FROM_EMAIL,
+        'shop_email': reply_to_address(),
     }
 
 
@@ -29,7 +42,7 @@ def _send(*, subject, to, text_body, html_body=None, reply_to=None, what='email'
 
     message = EmailMultiAlternatives(
         subject=subject, body=text_body, from_email=settings.DEFAULT_FROM_EMAIL,
-        to=to, reply_to=reply_to or [settings.DEFAULT_FROM_EMAIL],
+        to=to, reply_to=reply_to or [reply_to_address()],
     )
     if html_body:
         message.attach_alternative(html_body, 'text/html')

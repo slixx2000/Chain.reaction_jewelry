@@ -14,6 +14,7 @@ from django.urls import reverse
 
 from item.models import Category, Item
 from orders import bila, services
+from orders.emails import notify_seller, send_receipt
 from orders.models import Order
 
 SECRET = 'whsec_test'
@@ -426,3 +427,48 @@ class ReconcileTests(TestCase):
         call_command('reconcile_orders', verbosity=0)
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.Status.PAID)
+
+
+class ReplyToTests(TestCase):
+    """DEFAULT_FROM_EMAIL is send-only on Resend, so replies must go elsewhere."""
+
+    def setUp(self):
+        seller = User.objects.create_user('seller', password='x')
+        self.item = Item.objects.create(
+            category=Category.objects.create(name='Rings'), name='Gold Band',
+            price=Decimal('100.00'), created_by=seller,
+        )
+        self.order = Order.objects.create(
+            full_name='Ada', email='ada@example.com', phone='260977123456',
+            operator='airtel', delivery_address='Lusaka', total=Decimal('100.00'),
+            status=Order.Status.PAID, paid_at=timezone.now(),
+        )
+        self.order.items.create(item=self.item, name=self.item.name, price=self.item.price)
+
+    @override_settings(REPLY_TO_EMAIL='shaun@gmail.com',
+                       DEFAULT_FROM_EMAIL='orders@chainreactionjewelry.site')
+    def test_receipt_replies_go_to_the_readable_inbox(self):
+        send_receipt(self.order)
+        receipt = mail.outbox[0]
+        self.assertEqual(receipt.from_email, 'orders@chainreactionjewelry.site')
+        self.assertEqual(receipt.reply_to, ['shaun@gmail.com'])
+        # The footer's mailto must not point at the send-only address either.
+        self.assertIn('shaun@gmail.com', receipt.body)
+        self.assertNotIn('mailto:orders@chainreactionjewelry.site', receipt.alternatives[0][0])
+
+    @override_settings(REPLY_TO_EMAIL='', ORDER_NOTIFY_EMAILS=['shop@example.com'])
+    def test_falls_back_to_the_notification_address(self):
+        send_receipt(self.order)
+        self.assertEqual(mail.outbox[0].reply_to, ['shop@example.com'])
+
+    @override_settings(REPLY_TO_EMAIL='', ORDER_NOTIFY_EMAILS=[],
+                       DEFAULT_FROM_EMAIL='orders@example.com')
+    def test_falls_back_to_the_from_address_as_a_last_resort(self):
+        send_receipt(self.order)
+        self.assertEqual(mail.outbox[0].reply_to, ['orders@example.com'])
+
+    @override_settings(REPLY_TO_EMAIL='shaun@gmail.com',
+                       ORDER_NOTIFY_EMAILS=['shop@example.com'])
+    def test_seller_alert_still_replies_to_the_customer(self):
+        notify_seller(self.order)
+        self.assertEqual(mail.outbox[0].reply_to, ['ada@example.com'])

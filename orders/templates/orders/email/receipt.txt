@@ -17,6 +17,6 @@ We'll be in touch shortly to arrange delivery.
 
 Track this order: {{ order_url }}
 
-Questions? Just reply to this email.
+Questions? Reply to this email, or write to {{ shop_email }}.
 
 Chain Reaction
