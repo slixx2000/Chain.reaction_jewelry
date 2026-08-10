@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout as auth_logout
 from django.db.models import Count, Q
 from django.shortcuts import render, redirect
+from django_ratelimit.decorators import ratelimit
 from item.models import Category
 from . import storefront
 from .forms import SignUpForm
@@ -27,6 +29,17 @@ def index(request):
 def contact(request):
     return render(request, 'core/contact.html')
 
+
+def legal(request, page):
+    """Terms, privacy and returns — static copy with a shared shell."""
+    return render(request, f'core/{page}.html', {
+        'contact_email': settings.REPLY_TO_EMAIL or (
+            settings.ORDER_NOTIFY_EMAILS[0] if settings.ORDER_NOTIFY_EMAILS
+            else settings.DEFAULT_FROM_EMAIL),
+        'updated': settings.LEGAL_UPDATED,
+    })
+
+@ratelimit(key='ip', rate='3/h', method='POST', block=True)
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)

@@ -42,7 +42,7 @@
             <a href="{% url 'item:detail' pk=item.pk %}" class="block">
               <div class="relative overflow-hidden">
                 {% if item.image %}
-                  <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy"
+                  <img src="{{ item.card_image.url }}" alt="{{ item.name }}" loading="lazy"
                        class="w-full h-52 sm:h-72 object-cover transition-transform duration-700
                               {% if item.is_sold %}grayscale opacity-40{% else %}group-hover:scale-105{% endif %}">
                 {% else %}

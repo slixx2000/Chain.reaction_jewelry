@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -53,6 +53,7 @@
     </style>
     <meta name="description" content="{% block description %}Chain Reaction — a curated jewelry edit. Sourced abroad, brought to Lusaka.{% endblock %}">
     <title>{% block title %}Contemporary Jewelry{% endblock %} | Chain Reaction</title>
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
     {% block extra_head %}{% endblock %}
 </head>
 <body class="overflow-x-hidden bg-ink text-ivory selection:bg-antique selection:text-obsidian">
@@ -186,7 +187,9 @@
             <p class="caps text-ivory/40 mb-4">Reach us</p>
             <ul class="space-y-3 text-sm">
                 <li><a href="{% url 'core:contact' %}" class="text-ivory-dim hover:text-antique transition-colors">Contact</a></li>
-                <li><a href="{% url 'core:contact' %}" class="text-ivory-dim hover:text-antique transition-colors">Request a piece</a></li>
+                <li><a href="{% url 'core:returns' %}" class="text-ivory-dim hover:text-antique transition-colors">Returns</a></li>
+                <li><a href="{% url 'core:terms' %}" class="text-ivory-dim hover:text-antique transition-colors">Terms</a></li>
+                <li><a href="{% url 'core:privacy' %}" class="text-ivory-dim hover:text-antique transition-colors">Privacy</a></li>
             </ul>
         </div>
     </div>

@@ -1,0 +1,79 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Terms of Service{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="px-5 sm:px-8 py-16 sm:py-24">
+  <div class="max-w-2xl mx-auto">
+    <p class="caps text-antique mb-4">Policy</p>
+    <h1 class="font-display text-4xl sm:text-5xl mb-4">Terms of Service</h1>
+    <p class="caps text-[10px] text-ivory/30 mb-10">Last updated {{ updated }}</p>
+    <div class="rule mb-10"></div>
+    <div class="space-y-8 text-ivory-dim leading-relaxed">
+      <div class="border border-antique/40 bg-antique/5 p-5">
+        <p class="caps text-antique mb-2">To be confirmed</p>
+        <p class="text-sm">
+          A plain-language starting point, not legal advice. Add your registered
+          business name and address, have someone check it, then delete this box.
+        </p>
+      </div>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Who we are</h2>
+        <p>
+          Chain Reaction, based in Lusaka, Zambia. We source jewelry from suppliers
+          abroad and resell it here. We do not manufacture the pieces we sell.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Prices and stock</h2>
+        <p>
+          Prices are in Zambian Kwacha and include any taxes we are required to
+          charge. Stock is limited and a piece is only reserved once payment
+          succeeds. If something sells while it is in your bag, we will tell you and
+          nothing will be charged.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Payment</h2>
+        <p>
+          Payment is by mobile money through Bila. You approve the charge with your
+          own PIN on your own phone; we never handle or store it. Your order is
+          confirmed only when the payment clears.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Delivery</h2>
+        <p>
+          We arrange delivery after payment and confirm timing with you directly.
+          Delivery times are estimates, not guarantees.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Returns</h2>
+        <p>
+          Covered by our <a href="{% url 'core:returns' %}" class="text-antique hover:underline">returns policy</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Photographs</h2>
+        <p>
+          We photograph pieces as accurately as we can, but screens differ and
+          natural stones vary. Small differences in colour or grain are normal and
+          are not a fault.
+        </p>
+      </section>
+    </div>
+
+    <a href="{% url 'core:contact' %}" class="inline-block mt-12 caps text-ivory/50 hover:text-ivory transition-colors">
+      Questions? Get in touch
+    </a>
+  </div>
+</div>
+{% endblock %}

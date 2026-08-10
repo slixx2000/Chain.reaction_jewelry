@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Slow down{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="px-5 sm:px-8 py-24 sm:py-32">
+  <div class="max-w-xl mx-auto text-center">
+    <p class="caps text-antique mb-4">429</p>
+    <h1 class="font-display text-4xl sm:text-6xl mb-6">One moment.</h1>
+    <p class="text-ivory-dim mb-10">
+      That came through faster than we can handle. Wait a minute and try again —
+      nothing has been lost.
+    </p>
+    <a href="{% url 'item:items' %}" class="caps px-10 py-4 bg-ivory text-obsidian hover:bg-antique transition-colors">
+      Back to the collection
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django_ratelimit.decorators import ratelimit
 
 from cart.cart import Cart
 from . import bila, services
@@ -36,6 +37,8 @@ def _get_visible_order(request, reference):
     raise Http404
 
 
+@ratelimit(key='ip', rate='5/h', method='POST', block=True)
+@ratelimit(key='post:phone', rate='3/h', method='POST', block=True)
 def checkout(request):
     cart = Cart(request)
     lines = list(cart)
@@ -97,6 +100,7 @@ def order_status(request, reference):
     return render(request, 'orders/order_status.html', {'order': order})
 
 
+@ratelimit(key='ip', rate='30/m', block=True)
 def order_state(request, reference):
     """Polled by the status page so it can settle without a manual refresh."""
     order = services.refresh_from_bila(_get_visible_order(request, reference))
@@ -113,6 +117,7 @@ def order_history(request):
     return render(request, 'orders/history.html', {'orders': orders})
 
 
+@ratelimit(key='ip', rate='120/m', method='POST', block=True)
 @csrf_exempt
 @require_POST
 def bila_webhook(request):
@@ -158,6 +163,7 @@ def _find_reference(payload):
     return None
 
 
+@ratelimit(key='ip', rate='10/m', method='POST', block=True)
 @csrf_exempt
 @require_POST
 def reconcile_pending(request):

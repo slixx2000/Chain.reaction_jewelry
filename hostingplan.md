@@ -23,25 +23,25 @@ Ordered by whether it *stops* you launching.
 | 7 | ~~**No `LOGGING` config**~~ ✅ | Every `logger.exception` in the payment code goes nowhere. You would be blind to failed payments | Console logging + Sentry |
 | 8 | ~~**No password reset**~~ ✅ | A customer who forgets their password is locked out forever, with no self-service route | Django's built-in reset views + Resend |
 | 9 | ~~**No stuck-order reconciliation**~~ ✅ | If a customer approves the PIN then closes the tab *and* the webhook is missed, the order sits `pending` forever. You have been paid and do not know | Management command on a cron |
-| 10 | **Product images are served raw** | A 4 MB phone photo × 12 on the browse grid = a ~50 MB page. On Zambian mobile data that is unusable | Resize on upload, or Cloudinary transforms |
+| 10 | ~~**Product images are served raw**~~ ✅ | A 4 MB phone photo × 12 on the browse grid = a ~50 MB page. On Zambian mobile data that is unusable | Resize on upload, or Cloudinary transforms |
 
 ### Security — do before taking real payments
 
 | # | Gap | Fix |
 |---|-----|-----|
-| 11 | **No rate limiting anywhere** | See §5 |
+| 11 | ~~**No rate limiting anywhere**~~ ✅ | Applied per §5; LocMemCache means limits are per-worker until Redis or Cloudflare fronts it |
 | 12 | ~~`SECURE_HSTS_SECONDS` unset~~ ✅ | Now env-driven; set it once HTTPS works |
 | 13 | ~~No upload size/type limit~~ ✅ | 8 MB cap, JPEG/PNG/WebP only |
 | 14 | Admin is at the guessable `/admin/` | Move it, and/or put Cloudflare Access in front |
-| 15 | No error monitoring | Sentry free tier |
+| 15 | ~~No error monitoring~~ ✅ | Sentry wired, inert until `SENTRY_DSN` is set |
 
 ### Trust and legal — customers and payment providers expect these
 
 | # | Gap |
 |---|-----|
-| 16 | No Terms of Service, Privacy Policy, or Returns/Refunds page. Bila may ask for these during onboarding, and taking money without a refund policy is a dispute waiting to happen |
+| 16 | ~~No Terms/Privacy/Returns~~ ⚠️ **drafted, needs your review** — each page carries a highlighted box to delete once checked. Bila may ask for these during onboarding, and taking money without a refund policy is a dispute waiting to happen |
 | 17 | ~~No 404 / 500 templates~~ ✅ done |
-| 18 | No favicon, `robots.txt`, or sitemap |
+| 18 | ~~No favicon or `robots.txt`~~ ✅ (sitemap still missing) |
 | 19 | No business contact details beyond an email — a phone number materially increases conversion in Zambia |
 
 ### Nice to have
@@ -216,7 +216,9 @@ media, image resizing, rate limiting, Sentry, Terms/Privacy/Returns pages.
       are good. Reply-To correctly resolves to the Gmail inbox.
 - [ ] Neon → copy `DATABASE_URL`
 - [ ] Cloudflare R2 (or Cloudinary) → copy credentials
-- [ ] Bila → sandbox key, wallet id, webhook secret
+- [x] **Bila sandbox** — key and wallet id in `.env`, connectivity confirmed
+      2026-08-10 (a status lookup authenticated and returned "not found").
+      The webhook URL still cannot be registered until there is a public host.
 - [ ] Sentry → copy DSN
 - [ ] Point the domain at Cloudflare
 - [x] `DJANGO_SECRET_KEY` generated (a separate one is still needed for prod)

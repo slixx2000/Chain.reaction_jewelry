@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -37,6 +38,7 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env_bool('DJANGO_DEBUG', True)
+TESTING = 'test' in sys.argv
 
 ALLOWED_HOSTS = [h for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if h]
 
@@ -111,6 +113,20 @@ BILA_WEBHOOK_SECRET = os.environ.get('BILA_WEBHOOK_SECRET', '')
 BILA_COUNTRY = os.environ.get('BILA_COUNTRY', 'zm')
 BILA_FEE_BEARER = os.environ.get('BILA_FEE_BEARER', 'merchant')  # merchant | customer
 
+# ── Rate limiting ─────────────────────────────────────────────────────────────
+# Off during tests so fixtures can hit a view repeatedly; the dedicated
+# rate-limit tests turn it back on explicitly.
+RATELIMIT_ENABLE = env_bool('RATELIMIT_ENABLE', not TESTING)
+# LocMemCache is per-process, so with N gunicorn workers a limit is effectively
+# N times looser. Point CACHE_URL at Redis, or lean on Cloudflare, once that
+# matters. Good enough to stop the obvious abuse today.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'chainreaction',
+    }
+}
+
 # Shared secret for the reconciliation endpoint an external scheduler calls.
 # Blank disables the endpoint entirely.
 CRON_TOKEN = os.environ.get('CRON_TOKEN', '')
@@ -124,6 +140,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.RateLimitMiddleware',
 ]
 
 ROOT_URLCONF = 'chainreaction.urls'
@@ -204,7 +221,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 STORAGES = {
     'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
     # Compresses and fingerprints static files so they can be cached forever.
-    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+    # The manifest backend requires collectstatic to have run, which is not true
+    # under tests or in dev, so it is production-only.
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'
+        if DEBUG or TESTING
+        else 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    },
 }
 
 # Reject oversized uploads before they reach a form. A phone photo is ~5MB;
@@ -231,3 +254,19 @@ LOGGING = {
         'django.security': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
     },
 }
+
+# Shown on the legal pages. Bump it whenever you change their wording.
+LEGAL_UPDATED = os.environ.get('LEGAL_UPDATED', '10 August 2026')
+
+# ── Error monitoring ──────────────────────────────────────────────────────────
+SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
+if SENTRY_DSN:
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=os.environ.get('SENTRY_ENVIRONMENT', 'production' if not DEBUG else 'local'),
+        traces_sample_rate=float(os.environ.get('SENTRY_TRACES_SAMPLE_RATE', 0.1)),
+        # Never ship customer phone numbers or addresses to a third party.
+        send_default_pii=False,
+    )

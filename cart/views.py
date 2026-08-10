@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
+from django_ratelimit.decorators import ratelimit
 from .cart import Cart
 from item.models import Item
 
@@ -21,6 +22,7 @@ def cart_summary(request):
     return render(request, 'cart/cart_summary.html', {'cart_items': cart})
 
 
+@ratelimit(key='ip', rate='60/m', method='POST', block=True)
 @require_POST
 def add_to_cart(request, item_id):
     item = get_object_or_404(Item, id=item_id)

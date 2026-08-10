@@ -1,5 +1,6 @@
 from django.db import models
 
+from . import images
 from .validators import validate_image_upload
 
 
@@ -28,12 +29,23 @@ class SiteContent(models.Model):
     def __str__(self):
         return 'Site content'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_hero = self.hero_image.name if self.hero_image else None
+
     def save(self, *args, **kwargs):
+        if self.hero_image and self.hero_image.name != self._original_hero:
+            # Full-bleed banner, so it gets more headroom than a product shot.
+            resized = images.process(self.hero_image, max_side=2200)
+            if resized:
+                self.hero_image.save(resized.name, resized, save=False)
+
         self.pk = 1  # There is only ever one row.
         # create() would pass force_insert=True and collide with the existing
         # row; drop it so a second save updates rather than raising.
         kwargs.pop('force_insert', None)
         super().save(*args, **kwargs)
+        self._original_hero = self.hero_image.name if self.hero_image else None
 
     def delete(self, *args, **kwargs):
         pass  # Deleting the only row would break the landing page.

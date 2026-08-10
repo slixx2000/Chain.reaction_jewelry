@@ -25,7 +25,7 @@
               <div class="flex items-start gap-4 sm:gap-6">
                 <a href="{% url 'item:detail' pk=cart_item.item.pk %}" class="shrink-0 overflow-hidden group">
                   {% if cart_item.item.image %}
-                    <img src="{{ cart_item.item.image.url }}" alt="{{ cart_item.item.name }}" loading="lazy"
+                    <img src="{{ cart_item.item.card_image.url }}" alt="{{ cart_item.item.name }}" loading="lazy"
                          class="w-24 h-28 sm:w-28 sm:h-32 object-cover group-hover:scale-105 transition-transform duration-700">
                   {% else %}
                     <div class="w-24 h-28 sm:w-28 sm:h-32">

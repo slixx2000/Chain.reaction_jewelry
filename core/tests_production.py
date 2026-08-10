@@ -98,3 +98,160 @@ class StaticFilesTests(TestCase):
         """Without STATIC_ROOT, collectstatic fails and the admin loses its CSS."""
         from django.conf import settings
         self.assertTrue(settings.STATIC_ROOT)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp(), MAX_UPLOAD_BYTES=20*1024*1024)
+class ImagePipelineTests(TestCase):
+    """A raw phone photo must never reach a customer's browser."""
+
+    def setUp(self):
+        from item.models import Category, Item
+        self.owner = User.objects.create_user('seller', password='x')
+        self.category = Category.objects.create(name='Rings')
+        self.Item = Item
+
+    def upload(self, pixels=(3000, 2000), fmt='JPEG'):
+        return SimpleUploadedFile(f'photo.{fmt.lower()}', make_image(fmt, pixels),
+                                  content_type=f'image/{fmt.lower()}')
+
+    def make(self):
+        item = self.Item(category=self.category, name='Gold Band',
+                         price=Decimal('100.00'), created_by=self.owner)
+        item.image = self.upload()
+        item.save()
+        return item
+
+    def test_upload_is_resized_and_a_thumbnail_generated(self):
+        item = self.make()
+        self.assertTrue(item.thumbnail)
+
+        from PIL import Image as PILImage
+        with PILImage.open(item.image) as full:
+            self.assertLessEqual(max(full.size), 1600)
+        with PILImage.open(item.thumbnail) as thumb:
+            self.assertLessEqual(max(thumb.size), 700)
+
+    def test_thumbnail_is_much_smaller_than_the_full_image(self):
+        item = self.make()
+        self.assertLess(item.thumbnail.size, item.image.size / 2)
+
+    def test_output_is_webp_whatever_went_in(self):
+        item = self.make()
+        self.assertTrue(item.image.name.endswith('.webp'))
+        self.assertTrue(item.thumbnail.name.endswith('.webp'))
+
+    def test_card_image_prefers_the_thumbnail(self):
+        item = self.make()
+        self.assertEqual(item.card_image, item.thumbnail)
+
+    def test_card_image_falls_back_when_there_is_no_thumbnail(self):
+        item = self.Item.objects.create(category=self.category, name='No Photo',
+                                        price=Decimal('10.00'), created_by=self.owner)
+        self.assertFalse(item.card_image)
+
+    def test_editing_an_item_does_not_re_encode_the_image(self):
+        """Re-saving must not degrade the photo a little more each time."""
+        item = self.make()
+        original_name, original_size = item.image.name, item.image.size
+
+        item.price = Decimal('200.00')
+        item.save()
+        item.refresh_from_db()
+
+        self.assertEqual(item.image.name, original_name)
+        self.assertEqual(item.image.size, original_size)
+
+    def test_exif_orientation_is_applied_before_it_is_stripped(self):
+        """Otherwise portrait phone photos would display sideways."""
+        from PIL import Image as PILImage
+        buffer = BytesIO()
+        img = PILImage.new('RGB', (400, 200), (10, 20, 30))
+        exif = img.getexif()
+        exif[274] = 6  # "rotate 90 CW"
+        img.save(buffer, format='JPEG', exif=exif)
+        buffer.seek(0)
+
+        item = self.Item(category=self.category, name='Rotated',
+                         price=Decimal('10.00'), created_by=self.owner)
+        item.image = SimpleUploadedFile('r.jpg', buffer.getvalue(), content_type='image/jpeg')
+        item.save()
+
+        with PILImage.open(item.image) as out:
+            self.assertGreater(out.height, out.width)   # now genuinely portrait
+            self.assertIsNone(out.getexif().get(274))   # and the tag is gone
+
+
+@override_settings(RATELIMIT_ENABLE=True)
+class RateLimitTests(TestCase):
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()   # LocMemCache persists between tests
+
+    def test_login_is_throttled_by_username(self):
+        User.objects.create_user('ada', password='right-password')
+        url = reverse('core:login')
+        for _ in range(5):
+            self.client.post(url, {'username': 'ada', 'password': 'wrong'})
+
+        response = self.client.post(url, {'username': 'ada', 'password': 'wrong'})
+        self.assertEqual(response.status_code, 429)
+
+    def test_signup_is_throttled(self):
+        url = reverse('core:signup')
+        for i in range(3):
+            self.client.post(url, {'username': f'u{i}', 'email': f'u{i}@e.com',
+                                   'password1': 'sw9fj2mfk3', 'password2': 'sw9fj2mfk3'})
+        response = self.client.post(url, {'username': 'u9', 'email': 'u9@e.com',
+                                          'password1': 'sw9fj2mfk3', 'password2': 'sw9fj2mfk3'})
+        self.assertEqual(response.status_code, 429)
+
+    def test_the_429_page_explains_itself(self):
+        User.objects.create_user('ada', password='x')
+        url = reverse('core:login')
+        for _ in range(6):
+            response = self.client.post(url, {'username': 'ada', 'password': 'wrong'})
+        self.assertContains(response, 'One moment.', status_code=429)
+
+    def test_ajax_gets_json_not_an_html_page(self):
+        User.objects.create_user('ada', password='x')
+        url = reverse('core:login')
+        for _ in range(6):
+            response = self.client.post(url, {'username': 'ada', 'password': 'wrong'},
+                                        headers={'x-requested-with': 'XMLHttpRequest'})
+        self.assertEqual(response.status_code, 429)
+        self.assertIn('detail', response.json())
+
+    @override_settings(RATELIMIT_ENABLE=False)
+    def test_limits_are_off_during_tests_by_default(self):
+        User.objects.create_user('ada', password='x')
+        for _ in range(8):
+            response = self.client.post(reverse('core:login'),
+                                        {'username': 'ada', 'password': 'wrong'})
+        self.assertEqual(response.status_code, 200)
+
+
+class LegalAndDiscoveryTests(TestCase):
+    def test_legal_pages_render(self):
+        for name in ('terms', 'privacy', 'returns'):
+            response = self.client.get(reverse(f'core:{name}'))
+            self.assertEqual(response.status_code, 200, name)
+            self.assertContains(response, 'Last updated')
+
+    def test_legal_pages_are_linked_from_every_page(self):
+        body = self.client.get(reverse('core:index')).content.decode()
+        for name in ('terms', 'privacy', 'returns'):
+            self.assertIn(reverse(f'core:{name}'), body)
+
+    def test_privacy_names_the_third_parties_that_receive_data(self):
+        response = self.client.get(reverse('core:privacy'))
+        self.assertContains(response, 'Bila')
+        self.assertContains(response, 'Resend')
+
+    def test_robots_blocks_private_areas(self):
+        response = self.client.get('/robots.txt')
+        self.assertEqual(response['Content-Type'], 'text/plain')
+        for path in ('/admin/', '/cart/', '/orders/', '/dashboard/'):
+            self.assertContains(response, f'Disallow: {path}')
+
+    def test_favicon_is_referenced(self):
+        self.assertContains(self.client.get(reverse('core:index')), 'favicon.svg')

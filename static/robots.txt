@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+# Nothing below is useful to a search engine, and some of it is private.
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /orders/
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /signup/
+Disallow: /password-reset/
+Disallow: /reset/
+
+Sitemap: https://chainreactionjewelry.site/sitemap.xml

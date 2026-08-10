@@ -132,7 +132,7 @@
                  style="transition-delay:150ms">
                 <div class="overflow-hidden border border-ivory/25">
                   {% if second.image %}
-                    <img src="{{ second.image.url }}" alt="{{ second.name }}" loading="lazy"
+                    <img src="{{ second.card_image.url }}" alt="{{ second.name }}" loading="lazy"
                          class="w-full h-72 object-cover">
                   {% else %}
                     <div class="h-72">{% include 'core/_placeholder.html' with label=second.name %}</div>
@@ -169,7 +169,7 @@
            style="transition-delay:{% if forloop.counter0 < 4 %}{{ forloop.counter0 }}20{% else %}80{% endif %}ms">
           <div class="overflow-hidden">
             {% if item.image %}
-              <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy"
+              <img src="{{ item.card_image.url }}" alt="{{ item.name }}" loading="lazy"
                    class="w-full h-56 sm:h-80 object-cover">
             {% else %}
               <div class="h-56 sm:h-80">{% include 'core/_placeholder.html' with label=item.name %}</div>

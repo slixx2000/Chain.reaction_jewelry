@@ -1,0 +1,72 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Privacy Policy{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="px-5 sm:px-8 py-16 sm:py-24">
+  <div class="max-w-2xl mx-auto">
+    <p class="caps text-antique mb-4">Policy</p>
+    <h1 class="font-display text-4xl sm:text-5xl mb-4">Privacy Policy</h1>
+    <p class="caps text-[10px] text-ivory/30 mb-10">Last updated {{ updated }}</p>
+    <div class="rule mb-10"></div>
+    <div class="space-y-8 text-ivory-dim leading-relaxed">
+      <div class="border border-antique/40 bg-antique/5 p-5">
+        <p class="caps text-antique mb-2">To be confirmed</p>
+        <p class="text-sm">
+          This describes what the site genuinely does today. Check it still matches
+          before publishing, then delete this box.
+        </p>
+      </div>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">What we collect</h2>
+        <p>
+          When you order we collect your name, phone number, delivery address and,
+          if you give one, your email. If you create an account we store your
+          username and a hashed password — never the password itself.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Why we hold it</h2>
+        <p>
+          Only to take payment, deliver your order, and answer you if you get in
+          touch. We do not sell your details or send marketing you did not ask for.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Who else sees it</h2>
+        <p>
+          Your phone number and the amount go to <strong class="text-ivory">Bila</strong>,
+          our payment provider, to charge you. Your email address goes to
+          <strong class="text-ivory">Resend</strong>, which delivers your receipt.
+          That is all. We never see or store your mobile money PIN.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Cookies</h2>
+        <p>
+          One cookie, to remember what is in your bag and keep you logged in. There
+          is no advertising or tracking cookie on this site.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Your choices</h2>
+        <p>
+          Ask us at <a href="mailto:{{ contact_email }}" class="text-antique hover:underline">{{ contact_email }}</a>
+          for a copy of what we hold, or for it to be deleted. We keep order records
+          for accounting, so some details may have to stay.
+        </p>
+      </section>
+    </div>
+
+    <a href="{% url 'core:contact' %}" class="inline-block mt-12 caps text-ivory/50 hover:text-ivory transition-colors">
+      Questions? Get in touch
+    </a>
+  </div>
+</div>
+{% endblock %}

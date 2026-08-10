@@ -1,0 +1,73 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Returns & Refunds{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="px-5 sm:px-8 py-16 sm:py-24">
+  <div class="max-w-2xl mx-auto">
+    <p class="caps text-antique mb-4">Policy</p>
+    <h1 class="font-display text-4xl sm:text-5xl mb-4">Returns & Refunds</h1>
+    <p class="caps text-[10px] text-ivory/30 mb-10">Last updated {{ updated }}</p>
+    <div class="rule mb-10"></div>
+    <div class="space-y-8 text-ivory-dim leading-relaxed">
+      <div class="border border-antique/40 bg-antique/5 p-5">
+        <p class="caps text-antique mb-2">To be confirmed</p>
+        <p class="text-sm">
+          The windows and conditions below are sensible defaults for Zambia, not
+          legal advice. Read them, change the numbers to what you will actually
+          honour, then delete this box.
+        </p>
+      </div>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Changing your mind</h2>
+        <p>
+          You may return an unworn piece within <strong class="text-ivory">7 days</strong>
+          of delivery for a refund or exchange. It must be in its original condition,
+          with any packaging. Return delivery is paid by you unless the piece was
+          faulty or not what you ordered.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Faulty or wrong items</h2>
+        <p>
+          If a piece arrives damaged, faulty, or is not what you ordered, tell us
+          within <strong class="text-ivory">48 hours</strong> with a photo. We cover
+          return delivery and either replace it or refund you in full.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">What we cannot take back</h2>
+        <p>
+          For hygiene reasons, earrings cannot be returned once the packaging is
+          opened, unless faulty. This does not affect your statutory rights.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">How refunds are paid</h2>
+        <p>
+          Refunds go back to the mobile money number that paid, normally within
+          <strong class="text-ivory">5 working days</strong> of the piece reaching us.
+          Mobile money charges are not refundable.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl text-ivory mb-3">Starting a return</h2>
+        <p>
+          Email <a href="mailto:{{ contact_email }}" class="text-antique hover:underline">{{ contact_email }}</a>
+          with your order reference and what is wrong. We will reply with where to send it.
+        </p>
+      </section>
+    </div>
+
+    <a href="{% url 'core:contact' %}" class="inline-block mt-12 caps text-ivory/50 hover:text-ivory transition-colors">
+      Questions? Get in touch
+    </a>
+  </div>
+</div>
+{% endblock %}
