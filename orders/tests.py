@@ -14,7 +14,8 @@ from django.urls import reverse
 
 from item.models import Category, Item
 from orders import bila, services
-from orders.emails import notify_seller, send_receipt
+from django.core.mail import EmailMultiAlternatives
+from orders.emails import notify_seller, send_order_emails, send_receipt
 from orders.models import Order
 
 SECRET = 'whsec_test'
@@ -472,3 +473,59 @@ class ReplyToTests(TestCase):
     def test_seller_alert_still_replies_to_the_customer(self):
         notify_seller(self.order)
         self.assertEqual(mail.outbox[0].reply_to, ['ada@example.com'])
+
+
+class MailConnectionTests(TestCase):
+    """A second SMTP connection is how the seller alert was lost in testing."""
+
+    def setUp(self):
+        seller = User.objects.create_user('seller', password='x')
+        item = Item.objects.create(
+            category=Category.objects.create(name='Rings'), name='Gold Band',
+            price=Decimal('100.00'), created_by=seller,
+        )
+        self.order = Order.objects.create(
+            full_name='Ada', email='ada@example.com', phone='260977123456',
+            operator='airtel', delivery_address='Lusaka', total=Decimal('100.00'),
+            status=Order.Status.PAID, paid_at=timezone.now(),
+        )
+        self.order.items.create(item=item, name=item.name, price=item.price)
+
+    @override_settings(ORDER_NOTIFY_EMAILS=['shop@example.com'])
+    def test_both_messages_share_one_connection(self):
+        opened = []
+        real_get_connection = mail.get_connection
+
+        def counting(*args, **kwargs):
+            conn = real_get_connection(*args, **kwargs)
+            opened.append(conn)
+            return conn
+
+        with patch('orders.emails.get_connection', side_effect=counting):
+            send_order_emails(self.order)
+
+        self.assertEqual(len(opened), 1, 'should open exactly one connection')
+        self.assertEqual(len(mail.outbox), 2)
+
+    @override_settings(ORDER_NOTIFY_EMAILS=['shop@example.com'])
+    def test_a_transient_failure_is_retried_once(self):
+        calls = {'n': 0}
+        real_send = EmailMultiAlternatives.send
+
+        def flaky(self, *args, **kwargs):
+            calls['n'] += 1
+            if calls['n'] == 1:
+                raise TimeoutError('timed out')
+            return real_send(self, *args, **kwargs)
+
+        with patch.object(EmailMultiAlternatives, 'send', flaky):
+            send_order_emails(self.order)
+
+        # First attempt failed, retry succeeded, then the seller alert sent.
+        self.assertEqual(len(mail.outbox), 2)
+
+    @override_settings(ORDER_NOTIFY_EMAILS=['shop@example.com'])
+    def test_an_unopenable_connection_still_sends(self):
+        with patch('orders.emails.get_connection', side_effect=OSError('no route')):
+            send_order_emails(self.order)
+        self.assertEqual(len(mail.outbox), 2)

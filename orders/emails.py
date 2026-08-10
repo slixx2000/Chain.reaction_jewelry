@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 from django.urls import reverse
 
@@ -35,23 +35,31 @@ def _context(order):
     }
 
 
-def _send(*, subject, to, text_body, html_body=None, reply_to=None, what='email'):
+def _send(*, subject, to, text_body, html_body=None, reply_to=None, what='email',
+          connection=None):
     """Send and never raise. Payment already succeeded; mail is not allowed to undo that."""
     if not to:
         return False
 
     message = EmailMultiAlternatives(
         subject=subject, body=text_body, from_email=settings.DEFAULT_FROM_EMAIL,
-        to=to, reply_to=reply_to or [reply_to_address()],
+        to=to, reply_to=reply_to or [reply_to_address()], connection=connection,
     )
     if html_body:
         message.attach_alternative(html_body, 'text/html')
 
-    try:
-        message.send()
-    except Exception:
-        logger.exception('Could not send %s to %s', what, to)
-        return False
+    for attempt in (1, 2):
+        try:
+            message.send()
+            break
+        except Exception:
+            if attempt == 1:
+                logger.warning('Retrying %s to %s after a send failure', what, to)
+                # A dead shared connection cannot be reused; let Django open one.
+                message.connection = None
+                continue
+            logger.exception('Could not send %s to %s', what, to)
+            return False
 
     logger.info('Sent %s to %s', what, to)
     return True
@@ -64,15 +72,34 @@ def send_order_emails(order):
     sequence and stops at the first exception — one bad send must not silence
     the rest. `_send` already swallows delivery errors; this guards against a
     failure earlier than that, e.g. rendering a template.
+
+    Both messages share one SMTP connection. Opening a second one is how the
+    seller alert was lost in testing: the connection timed out even though the
+    receipt had gone out seconds earlier.
     """
-    for name, send in (('receipt', send_receipt), ('seller notification', notify_seller)):
-        try:
-            send(order)
-        except Exception:
-            logger.exception('Sending the %s failed for order %s', name, order.reference)
+    try:
+        connection = get_connection()
+        connection.open()
+    except Exception:
+        # Fall back to a connection per message rather than sending nothing.
+        logger.exception('Could not open a shared mail connection for order %s', order.reference)
+        connection = None
+
+    try:
+        for name, send in (('receipt', send_receipt), ('seller notification', notify_seller)):
+            try:
+                send(order, connection=connection)
+            except Exception:
+                logger.exception('Sending the %s failed for order %s', name, order.reference)
+    finally:
+        if connection is not None:
+            try:
+                connection.close()
+            except Exception:
+                pass
 
 
-def send_receipt(order):
+def send_receipt(order, connection=None):
     """Email the customer their receipt."""
     if not order.email:
         return False
@@ -84,10 +111,11 @@ def send_receipt(order):
         text_body=render_to_string('orders/email/receipt.txt', context),
         html_body=render_to_string('orders/email/receipt.html', context),
         what=f'receipt for {order.reference}',
+        connection=connection,
     )
 
 
-def notify_seller(order):
+def notify_seller(order, connection=None):
     """Tell the shop a paid order is waiting to be packed."""
     recipients = settings.ORDER_NOTIFY_EMAILS
     if not recipients:
@@ -101,4 +129,5 @@ def notify_seller(order):
         # So hitting reply goes to the customer, not back to the shop.
         reply_to=[order.email] if order.email else None,
         what=f'seller notification for {order.reference}',
+        connection=connection,
     )
