@@ -1,0 +1,13 @@
+{% comment %}
+Stand-in for a photo that has not been shot yet.
+Include it with two optional variables: `label` (what the image should show) and
+`note` (dimensions or art direction).
+
+Use {% comment %}, never a multi-line {# #} — Django only closes {# #} on the
+same line, so a stray include written in a two-line comment gets executed.
+{% endcomment %}
+<div class="placeholder w-full h-full min-h-[12rem] flex flex-col items-center justify-center gap-2 border border-ivory/20 text-center px-4">
+    <span class="caps text-ivory/50">{{ label|default:"Image" }}</span>
+    {% if note %}<span class="text-[11px] text-ivory/30 tracking-wide">{{ note }}</span>{% endif %}
+    <span class="text-[10px] text-ivory/20 tracking-[0.2em] uppercase">Photo pending</span>
+</div>

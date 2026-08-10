@@ -1,203 +1,183 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Handcrafted Jewelry{% endblock %}
+{% block title %}Contemporary Jewelry{% endblock %}
 {% block main_class %}{% endblock %}
 
 {% block extra_head %}
 <style>
-  /* Scroll-reveal: elements start offset and settle as they enter the viewport. */
-  .reveal {
-    opacity: 0;
-    transform: translateY(28px);
-    transition: opacity .8s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1);
-    will-change: opacity, transform;
-  }
+  /* Reveal on scroll. Everything here is switched off under prefers-reduced-motion. */
+  .reveal { opacity: 0; transform: translateY(24px);
+            transition: opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1); }
   .reveal.is-visible { opacity: 1; transform: none; }
 
-  /* Hero copy animates on load rather than on scroll — it is already in view. */
-  .rise { opacity: 0; transform: translateY(24px); animation: rise .9s cubic-bezier(.22,.61,.36,1) forwards; }
-  @keyframes rise { to { opacity: 1; transform: none; } }
+  .rise { opacity: 0; animation: rise 1.1s cubic-bezier(.22,.61,.36,1) forwards; }
+  @keyframes rise { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: none } }
 
-  .float-slow { animation: float 7s ease-in-out infinite; }
-  @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(-1.5deg); }
-    50%      { transform: translateY(-18px) rotate(1.5deg); }
-  }
+  /* Slow drift on the hero art, so the page is never quite still. */
+  .kenburns { animation: kenburns 24s ease-in-out infinite alternate; }
+  @keyframes kenburns { from { transform: scale(1) } to { transform: scale(1.07) } }
 
-  /* Slow sheen across the headline. */
-  .shimmer {
-    background: linear-gradient(100deg, #d29f22 20%, #f7e4a8 45%, #d29f22 70%);
-    background-size: 220% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: sheen 6s linear infinite;
-  }
-  @keyframes sheen { to { background-position: -220% center; } }
+  .zoom-parent img, .zoom-parent .placeholder { transition: transform .8s cubic-bezier(.25,.46,.45,.94); }
+  .zoom-parent:hover img, .zoom-parent:hover .placeholder { transform: scale(1.04); }
 
-  .glow-orb {
-    position: absolute;
-    border-radius: 9999px;
-    filter: blur(90px);
-    opacity: .5;
-    animation: drift 16s ease-in-out infinite;
-  }
-  @keyframes drift {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50%      { transform: translate(30px, -40px) scale(1.15); }
-  }
+  .scroll-tick { animation: tick 2.4s ease-in-out infinite; transform-origin: top; }
+  @keyframes tick { 0%,100% { transform: scaleY(.2) } 50% { transform: scaleY(1) } }
 
-  .lift { transition: transform .45s cubic-bezier(.22,.61,.36,1), box-shadow .45s ease; }
-  .lift:hover { transform: translateY(-6px); box-shadow: 0 18px 40px -18px rgba(210,159,34,.55); }
+  /* Underline that draws itself in from the left on hover. */
+  .draw { position: relative; }
+  .draw::after { content: ''; position: absolute; left: 0; bottom: -4px; height: 1px; width: 100%;
+                 background: currentColor; transform: scaleX(0); transform-origin: left;
+                 transition: transform .5s cubic-bezier(.22,.61,.36,1); }
+  .draw:hover::after { transform: scaleX(1); }
 
-  .scroll-cue { animation: nudge 2s ease-in-out infinite; }
-  @keyframes nudge { 0%,100% { transform: translateY(0); opacity:.55 } 50% { transform: translateY(8px); opacity:1 } }
-
-  /* Anyone who asks for less motion gets none of it. */
   @media (prefers-reduced-motion: reduce) {
-    .reveal, .rise { opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important; }
-    .float-slow, .shimmer, .glow-orb, .scroll-cue { animation: none !important; }
-    .shimmer { color: #d29f22; -webkit-text-fill-color: #d29f22; }
-    .lift:hover { transform: none; }
+    .reveal, .rise { opacity: 1 !important; transform: none !important;
+                     transition: none !important; animation: none !important; }
+    .kenburns, .scroll-tick { animation: none !important; }
+    .zoom-parent:hover img, .zoom-parent:hover .placeholder { transform: none; }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- ---------- Hero ---------- -->
-<section class="relative overflow-hidden px-4 sm:px-6 py-14 sm:py-20 md:py-28">
-  <div class="glow-orb w-72 h-72 sm:w-[26rem] sm:h-[26rem] bg-chain-gold/25 -top-24 -left-24"></div>
-  <div class="glow-orb w-64 h-64 sm:w-[22rem] sm:h-[22rem] bg-chain-wine/40 bottom-0 right-0" style="animation-delay:-8s"></div>
 
-  <div class="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-    <div>
-      <p class="rise text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] text-chain-gold/80 mb-4 sm:mb-5" style="animation-delay:.05s">
-        Handmade in Zambia
-      </p>
-      <h1 class="rise text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] md:leading-[1.05] mb-5 sm:mb-6" style="animation-delay:.15s">
-        <span class="shimmer">Chain Reaction</span><br>
-        <span class="text-white">jewelry with a story.</span>
-      </h1>
-      <p class="rise text-base sm:text-lg text-gray-300 max-w-lg mb-7 sm:mb-8" style="animation-delay:.25s">
-        Copper, brass and stone, shaped by hand into pieces made one at a time.
-        When a piece sells, it is gone — that is the point.
-      </p>
-      <div class="rise flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4" style="animation-delay:.35s">
-        <a href="{% url 'item:items' %}"
-           class="lift text-center px-8 py-3.5 sm:py-4 rounded-xl bg-chain-gold text-black font-semibold hover:bg-chain-gold-dark">
-          Shop the collection
-        </a>
-        <a href="#new-arrivals"
-           class="lift text-center px-8 py-3.5 sm:py-4 rounded-xl border border-chain-gold/50 text-chain-gold font-semibold hover:bg-chain-gold hover:text-black">
-          See what's new
-        </a>
-      </div>
-
-      <div class="rise grid grid-cols-3 gap-3 sm:gap-8 mt-10 sm:mt-12 text-xs sm:text-sm text-gray-400" style="animation-delay:.45s">
-        <div>
-          <p class="text-xl sm:text-2xl font-bold text-chain-gold">{{ available_count }}</p>
-          <p>piece{{ available_count|pluralize }} in stock</p>
-        </div>
-        <div>
-          <p class="text-xl sm:text-2xl font-bold text-chain-gold">1 of 1</p>
-          <p>every design</p>
-        </div>
-        <div>
-          <p class="text-base sm:text-2xl font-bold text-chain-gold leading-tight">MTN<span class="hidden sm:inline"> &middot; </span><span class="sm:hidden"> </span>Airtel</p>
-          <p>mobile money</p>
-        </div>
-      </div>
-    </div>
-
-    {% if hero_item %}
-      <div class="rise relative max-w-md mx-auto w-full" style="animation-delay:.3s">
-        <a href="{% url 'item:detail' pk=hero_item.pk %}" class="block float-slow">
-          {% if hero_item.image %}
-            <img src="{{ hero_item.image.url }}" alt="{{ hero_item.name }}"
-                 class="w-full rounded-2xl sm:rounded-3xl shadow-2xl shadow-chain-gold/20 ring-1 ring-chain-gold/30">
-          {% endif %}
-        </a>
-        <div class="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] rounded-xl sm:rounded-2xl bg-black/75 backdrop-blur px-4 sm:px-5 py-2.5 sm:py-3 border border-chain-gold/30">
-          <p class="text-[0.65rem] sm:text-xs uppercase tracking-wider text-gray-400">
-            {% if hero_item.badge %}{{ hero_item.get_badge_display }}{% else %}Just added{% endif %}
-          </p>
-          <div class="flex items-center justify-between gap-2 sm:gap-3">
-            <p class="font-semibold text-sm sm:text-base text-chain-gold truncate">{{ hero_item.name }}</p>
-            <p class="text-white text-sm sm:text-base whitespace-nowrap">ZMW {{ hero_item.price|floatformat:2 }}</p>
-          </div>
-        </div>
+<!-- ============ 1. Editorial hero ============ -->
+<section class="relative min-h-[88vh] md:min-h-screen flex items-center justify-center overflow-hidden">
+  <div class="absolute inset-0 z-0">
+    {% if hero_item and hero_item.image %}
+      <img src="{{ hero_item.image.url }}" alt="{{ hero_item.name }}"
+           class="kenburns w-full h-full object-cover object-center opacity-50">
+    {% else %}
+      <div class="kenburns w-full h-full">
+        {% include 'core/_placeholder.html' with label="Hero campaign image" note="1600 × 1000 · a piece worn close up, low light" %}
       </div>
     {% endif %}
+    <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/70"></div>
   </div>
 
-  <div class="scroll-cue absolute bottom-6 left-1/2 -translate-x-1/2 text-chain-gold/70">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-    </svg>
+  <div class="relative z-10 text-center px-5 sm:px-8 max-w-5xl">
+    <p class="rise caps text-ivory/60 mb-6" style="animation-delay:.1s">A jewelry edit &middot; Lusaka</p>
+    <h1 class="rise font-display uppercase text-[2.75rem] leading-[1.05] sm:text-6xl md:text-[5.25rem] md:leading-[0.95] tracking-tight"
+        style="animation-delay:.25s">
+      We didn't make it.<br>
+      <span class="italic text-antique">We found it.</span>
+    </h1>
+    <p class="rise mt-8 text-base sm:text-lg text-ivory-dim max-w-xl mx-auto" style="animation-delay:.4s">
+      Jewelry sourced from abroad and brought to Zambia in small numbers —
+      chosen one piece at a time, because taste is the whole job.
+    </p>
+    <div class="rise mt-10 flex flex-col sm:flex-row gap-4 justify-center" style="animation-delay:.55s">
+      <a href="{% url 'item:items' %}" class="caps bg-ivory text-obsidian px-10 py-4 hover:bg-antique transition-colors">
+        See the collection
+      </a>
+      <a href="#the-edit" class="caps border border-ivory/40 text-ivory px-10 py-4 hover:bg-ivory hover:text-obsidian transition-colors">
+        How we choose
+      </a>
+    </div>
+  </div>
+
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-60">
+    <span class="caps text-[10px] text-ivory">Scroll</span>
+    <div class="w-px h-12 bg-ivory/30 relative">
+      <div class="scroll-tick absolute inset-x-0 top-0 h-full bg-antique"></div>
+    </div>
   </div>
 </section>
 
-<!-- ---------- Best sellers ---------- -->
+<!-- ============ 2. The edit — asymmetric feature ============ -->
+<section id="the-edit" class="px-5 sm:px-8 py-24 md:py-40 scroll-mt-20">
+  <div class="max-w-7xl mx-auto grid grid-cols-12 gap-6 md:gap-gutter items-end">
+
+    <div class="reveal col-span-12 md:col-span-4 mb-10 md:mb-0">
+      <p class="caps text-antique mb-5">The edit</p>
+      <h2 class="font-display text-3xl sm:text-4xl md:text-5xl leading-tight mb-6">
+        Objects worth<br>the search.
+      </h2>
+      <p class="text-ivory-dim mb-8 max-w-sm">
+        We don't run a workshop. We run a search. Hundreds of pieces get passed
+        over so that a few dozen make it here — and what lands is what we'd wear
+        ourselves.
+      </p>
+      <a href="{% url 'item:items' %}" class="draw caps text-ivory inline-block">Browse everything</a>
+    </div>
+
+    {% if new_arrivals %}
+      {% with lead=new_arrivals.0 %}
+        <div class="col-span-12 md:col-span-8 relative">
+          <a href="{% url 'item:detail' pk=lead.pk %}" class="reveal zoom-parent block w-full md:w-4/5 ml-auto overflow-hidden">
+            <div class="overflow-hidden">
+              {% if lead.image %}
+                <img src="{{ lead.image.url }}" alt="{{ lead.name }}" loading="lazy"
+                     class="w-full h-[45vh] md:h-[60vh] object-cover">
+              {% else %}
+                <div class="h-[45vh] md:h-[60vh]">
+                  {% include 'core/_placeholder.html' with label=lead.name note="Product shot · 1200 × 1500" %}
+                </div>
+              {% endif %}
+            </div>
+            <div class="mt-4 flex justify-between items-center gap-4">
+              <span class="caps truncate">{{ lead.name }}</span>
+              <span class="caps text-antique whitespace-nowrap">ZMW {{ lead.price|floatformat:2 }}</span>
+            </div>
+            <div class="rule mt-3"></div>
+          </a>
+
+          {# Overlapping second piece — the deliberate misalignment the design calls for. #}
+          {% if new_arrivals|length > 1 %}
+            {% with second=new_arrivals.1 %}
+              <a href="{% url 'item:detail' pk=second.pk %}"
+                 class="reveal zoom-parent hidden md:block absolute -left-6 lg:-left-12 bottom-16 w-56 lg:w-64 z-20"
+                 style="transition-delay:150ms">
+                <div class="overflow-hidden border border-ivory/25">
+                  {% if second.image %}
+                    <img src="{{ second.image.url }}" alt="{{ second.name }}" loading="lazy"
+                         class="w-full h-72 object-cover">
+                  {% else %}
+                    <div class="h-72">{% include 'core/_placeholder.html' with label=second.name %}</div>
+                  {% endif %}
+                </div>
+                <div class="mt-2 flex justify-between items-center gap-2 bg-ink/90 backdrop-blur px-2 py-1.5">
+                  <span class="caps text-[10px] truncate">{{ second.name }}</span>
+                  <span class="caps text-[10px] text-antique whitespace-nowrap">{{ second.price|floatformat:0 }}</span>
+                </div>
+              </a>
+            {% endwith %}
+          {% endif %}
+        </div>
+      {% endwith %}
+    {% endif %}
+  </div>
+</section>
+
+<!-- ============ 3. Best sellers — editorial list ============ -->
 {% if best_sellers %}
-<section class="px-4 sm:px-6 py-12 sm:py-16 bg-chain-slate-dark/40">
+<section class="px-5 sm:px-8 py-20 md:py-32 border-t border-ivory/10">
   <div class="max-w-7xl mx-auto">
-    <div class="reveal flex flex-wrap items-end justify-between gap-3 mb-8">
+    <div class="reveal flex flex-wrap items-end justify-between gap-4 mb-12">
       <div>
-        <p class="text-xs sm:text-sm uppercase tracking-[0.2em] text-chain-gold/70 mb-2">Most wanted</p>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Best Sellers</h2>
+        <p class="caps text-antique mb-4">Moving fastest</p>
+        <h2 class="font-display text-3xl sm:text-4xl md:text-5xl">What people take home.</h2>
       </div>
-      <a href="{% url 'item:items' %}" class="text-sm text-gray-300 hover:text-chain-gold">View all &rarr;</a>
+      <a href="{% url 'item:items' %}" class="draw caps text-ivory-dim hover:text-ivory">All pieces</a>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-gutter">
       {% for item in best_sellers %}
-        <div class="reveal relative lift" style="transition-delay:{% if forloop.counter0 < 4 %}{{ forloop.counter0 }}00{% else %}400{% endif %}ms">
-          <span class="absolute -top-3 -left-3 z-10 w-9 h-9 rounded-full bg-chain-gold text-black font-bold flex items-center justify-center shadow-lg">
-            {{ forloop.counter }}
-          </span>
-          {% include 'item/_card.html' %}
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-
-<!-- ---------- New arrivals ---------- -->
-<section id="new-arrivals" class="px-4 sm:px-6 py-12 sm:py-16 scroll-mt-20">
-  <div class="max-w-7xl mx-auto">
-    <div class="reveal flex flex-wrap items-end justify-between gap-3 mb-8">
-      <div>
-        <p class="text-xs sm:text-sm uppercase tracking-[0.2em] text-chain-gold/70 mb-2">Fresh off the bench</p>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white">New Arrivals</h2>
-      </div>
-      <a href="{% url 'item:items' %}" class="text-sm text-gray-300 hover:text-chain-gold">View all &rarr;</a>
-    </div>
-
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-      {% for item in new_arrivals %}
-        <div class="reveal lift" style="transition-delay:{% if forloop.counter0 < 4 %}{{ forloop.counter0 }}00{% else %}400{% endif %}ms">
-          {% include 'item/_card.html' %}
-        </div>
-      {% empty %}
-        <p class="text-gray-400 col-span-full">No pieces listed yet — check back soon.</p>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<!-- ---------- Categories ---------- -->
-{% if categories %}
-<section class="px-4 sm:px-6 py-12 sm:py-16 bg-chain-slate-dark/40">
-  <div class="max-w-7xl mx-auto">
-    <h2 class="reveal text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-6 sm:mb-8">Shop by Category</h2>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-      {% for category in categories %}
-        <a href="{% url 'item:items' %}?category={{ category.id }}"
-           class="reveal lift group block p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-chain-slate border border-transparent hover:border-chain-gold"
-           style="transition-delay:{% if forloop.counter0 < 4 %}{{ forloop.counter0 }}00{% else %}400{% endif %}ms">
-          <h3 class="text-xl font-semibold text-chain-gold group-hover:translate-x-1 transition-transform">{{ category.name }}</h3>
-          <p class="text-gray-400 text-sm mt-1">{{ category.available_count }} available</p>
+        <a href="{% url 'item:detail' pk=item.pk %}" class="reveal zoom-parent block group"
+           style="transition-delay:{% if forloop.counter0 < 4 %}{{ forloop.counter0 }}20{% else %}80{% endif %}ms">
+          <div class="overflow-hidden">
+            {% if item.image %}
+              <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy"
+                   class="w-full h-56 sm:h-80 object-cover">
+            {% else %}
+              <div class="h-56 sm:h-80">{% include 'core/_placeholder.html' with label=item.name %}</div>
+            {% endif %}
+          </div>
+          <div class="mt-3 flex justify-between items-baseline gap-3">
+            <span class="caps truncate">{{ item.name }}</span>
+            <span class="caps text-antique whitespace-nowrap">{{ item.price|floatformat:0 }}</span>
+          </div>
+          <div class="rule mt-2"></div>
         </a>
       {% endfor %}
     </div>
@@ -205,41 +185,88 @@
 </section>
 {% endif %}
 
-<!-- ---------- Closing band ---------- -->
-<section class="px-4 sm:px-6 py-16 sm:py-20">
-  <div class="reveal max-w-3xl mx-auto text-center">
-    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-chain-gold mb-4">Want something made for you?</h2>
-    <p class="text-gray-300 mb-8">
-      Commissions are open. Tell us the piece you have in mind and we'll work out
-      the design, the metal and the price together.
+<!-- ============ 4. Story — split, image bleeds to the edge ============ -->
+<section class="border-t border-ivory/10">
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <div class="reveal zoom-parent h-64 sm:h-96 md:h-[80vh] overflow-hidden">
+      {% include 'core/_placeholder.html' with label="Studio / flat-lay" note="1200 × 1600 · pieces laid out on stone or linen" %}
+    </div>
+    <div class="reveal flex items-center px-5 sm:px-10 md:px-16 py-16 md:py-0 bg-charcoal">
+      <div class="max-w-md">
+        <p class="caps text-antique mb-6">Why us</p>
+        <h3 class="font-display italic text-2xl sm:text-3xl md:text-4xl leading-snug mb-6">
+          “The work is in the choosing.”
+        </h3>
+        <p class="text-ivory-dim text-base sm:text-lg mb-8">
+          Anyone can order a box of jewelry. The difference is what you send back.
+          We buy small, we buy carefully, and we'd rather arrive with twelve good
+          pieces than a hundred forgettable ones.
+        </p>
+        <a href="{% url 'core:contact' %}"
+           class="caps inline-block bg-ivory text-obsidian px-10 py-4 hover:bg-antique transition-colors">
+          Talk to us
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. Categories ============ -->
+{% if categories %}
+<section class="px-5 sm:px-8 py-20 md:py-32 border-t border-ivory/10">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="reveal font-display text-3xl sm:text-4xl md:text-5xl mb-12">Browse by kind.</h2>
+    <div class="reveal">
+      {% for category in categories %}
+        <a href="{% url 'item:items' %}?category={{ category.id }}"
+           class="group flex items-baseline justify-between gap-4 py-5 sm:py-6 border-t border-ivory/15 hover:border-antique transition-colors">
+          <span class="font-display text-xl sm:text-3xl md:text-4xl group-hover:text-antique group-hover:translate-x-2 transition-all duration-500">
+            {{ category.name }}
+          </span>
+          <span class="caps text-ivory/40 whitespace-nowrap">{{ category.available_count }} in stock</span>
+        </a>
+      {% endfor %}
+      <div class="border-t border-ivory/15"></div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============ 6. Closing ============ -->
+<section class="px-5 sm:px-8 py-24 md:py-40 text-center border-t border-ivory/10">
+  <div class="reveal max-w-2xl mx-auto">
+    <p class="caps text-antique mb-6">Looking for something specific?</p>
+    <h2 class="font-display text-3xl sm:text-4xl md:text-5xl mb-6">Tell us what you're after.</h2>
+    <p class="text-ivory-dim mb-10">
+      If it isn't here, it might be on the next order. Send us the piece you have
+      in mind and we'll tell you honestly whether we can find it.
     </p>
     <a href="{% url 'core:contact' %}"
-       class="lift inline-block w-full sm:w-auto px-8 py-3.5 sm:py-4 rounded-xl bg-chain-gold text-black font-semibold hover:bg-chain-gold-dark">
-      Start a commission
+       class="caps inline-block w-full sm:w-auto bg-ivory text-obsidian px-12 py-4 hover:bg-antique transition-colors">
+      Send a request
     </a>
+    <p class="mt-10 caps text-ivory/30">
+      {{ available_count }} piece{{ available_count|pluralize }} in stock &middot; MTN &middot; Airtel &middot; Zamtel
+    </p>
   </div>
 </section>
 
 <script>
   (function () {
     const targets = document.querySelectorAll('.reveal');
-
-    // No IntersectionObserver (or motion turned off) — just show everything.
     if (!('IntersectionObserver' in window) ||
         window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       targets.forEach(function (el) { el.classList.add('is-visible'); });
       return;
     }
-
     const observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);   // reveal once, then stop watching
+          observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
-
+    }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
     targets.forEach(function (el) { observer.observe(el); });
   })();
 </script>

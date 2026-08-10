@@ -69,9 +69,7 @@ class LandingPageTests(TestCase):
         response = self.client.get(reverse('core:index'))
         self.assertEqual(len(response.context['new_arrivals']), 8)
         self.assertEqual(response.context['available_count'], 12)
-        # Count and label live in separate tags, so check them separately.
-        self.assertContains(response, '>12</p>')
-        self.assertContains(response, 'pieces in stock')
+        self.assertContains(response, '12 pieces in stock')
 
     def test_stock_label_is_singular_for_one_piece(self):
         self.make_item('Only One')
@@ -81,3 +79,38 @@ class LandingPageTests(TestCase):
         response = self.client.get(reverse('core:index'))
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.context['hero_item'])
+
+
+class HonestCopyTests(TestCase):
+    """The jewelry is sourced and resold, not made here. No page may claim otherwise."""
+
+    FORBIDDEN = ('handmade', 'hand-made', 'handcrafted', 'hand-crafted',
+                 'made by hand', 'crafted in', 'artisan', 'commission')
+
+    def setUp(self):
+        owner = User.objects.create_user('seller', password='x')
+        category = Category.objects.create(name='Rings')
+        self.item = Item.objects.create(
+            category=category, name='Gold Band', price=Decimal('100.00'),
+            created_by=owner,
+        )
+
+    def assert_no_making_claims(self, url):
+        body = self.client.get(url).content.decode().lower()
+        for phrase in self.FORBIDDEN:
+            self.assertNotIn(phrase, body, f'"{phrase}" appears on {url}')
+
+    def test_landing_page_makes_no_making_claims(self):
+        self.assert_no_making_claims(reverse('core:index'))
+
+    def test_browse_and_detail_make_no_making_claims(self):
+        self.assert_no_making_claims(reverse('item:items'))
+        self.assert_no_making_claims(reverse('item:detail', args=[self.item.pk]))
+
+    def test_contact_page_makes_no_making_claims(self):
+        self.assert_no_making_claims(reverse('core:contact'))
+
+    def test_sold_detail_page_makes_no_making_claims(self):
+        self.item.is_sold = True
+        self.item.save()
+        self.assert_no_making_claims(reverse('item:detail', args=[self.item.pk]))

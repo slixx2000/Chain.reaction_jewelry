@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chain Reaction | Contemporary African Luxury</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#402d00",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#c3565c",
+                        "surface-tint": "#c9c6c5",
+                        "surface-dim": "#131410",
+                        "outline-variant": "#444748",
+                        "surface-container-high": "#2a2a26",
+                        "tertiary-fixed": "#ffdad9",
+                        "primary-fixed": "#e5e2e1",
+                        "primary-container": "#090909",
+                        "outline": "#8e9192",
+                        "surface-container-lowest": "#0e0e0b",
+                        "on-tertiary-fixed-variant": "#82252d",
+                        "inverse-on-surface": "#31312c",
+                        "on-tertiary-fixed": "#40000a",
+                        "on-tertiary": "#630d19",
+                        "secondary": "#f6be39",
+                        "on-secondary-fixed": "#261a00",
+                        "secondary-fixed": "#ffdf9f",
+                        "on-surface-variant": "#c4c7c7",
+                        "surface-container-low": "#1c1c18",
+                        "error": "#ffb4ab",
+                        "tertiary-fixed-dim": "#ffb3b3",
+                        "on-secondary-fixed-variant": "#5c4300",
+                        "on-secondary-container": "#433000",
+                        "on-error-container": "#ffdad6",
+                        "on-surface": "#e5e2db",
+                        "surface-container-highest": "#353530",
+                        "background": "#131410",
+                        "tertiary": "#ffb3b3",
+                        "secondary-container": "#c59300",
+                        "error-container": "#93000a",
+                        "surface-bright": "#3a3935",
+                        "primary-fixed-dim": "#c9c6c5",
+                        "on-background": "#e5e2db",
+                        "primary": "#c9c6c5",
+                        "on-primary-fixed": "#1c1b1b",
+                        "inverse-primary": "#5f5e5e",
+                        "surface-container": "#20201c",
+                        "inverse-surface": "#e5e2db",
+                        "on-primary-fixed-variant": "#474646",
+                        "surface": "#131410",
+                        "on-primary": "#313030",
+                        "tertiary-container": "#1d0002",
+                        "secondary-fixed-dim": "#f6be39",
+                        "on-primary-container": "#7a7978",
+                        "surface-variant": "#353530"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "stack-md": "24px",
+                        "stack-sm": "8px",
+                        "section-gap": "160px",
+                        "margin-desktop": "64px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Hanken Grotesk"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "body-md": ["Hanken Grotesk"],
+                        "display-lg": ["Bodoni Moda"],
+                        "headline-md": ["Bodoni Moda"],
+                        "display-lg-mobile": ["Bodoni Moda"],
+                        "nav-link": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "600" }],
+                        "headline-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "0.02em", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["84px", { "lineHeight": "90px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["48px", { "lineHeight": "52px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "nav-link": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        .editorial-line {
+            height: 1px;
+            background: rgba(229, 226, 219, 0.2); /* Warm Ivory ~20% */
+            width: 100%;
+        }
+        .image-hover-zoom {
+            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .image-container:hover .image-hover-zoom {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased overflow-x-hidden selection:bg-secondary selection:text-on-secondary">
+<div class="noise-overlay"></div>
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-md border-b border-outline/20 transition-all duration-500 ease-in-out flex justify-between items-center px-margin-mobile md:px-margin-desktop py-6">
+<nav class="hidden md:flex gap-gutter items-center">
+<a class="font-nav-link text-nav-link uppercase text-on-surface-variant hover:text-on-surface transition-colors hover:opacity-70 duration-300" href="#">Collections</a>
+<a class="font-nav-link text-nav-link uppercase text-on-surface-variant hover:text-on-surface transition-colors hover:opacity-70 duration-300" href="#">Materials</a>
+<a class="font-nav-link text-nav-link uppercase text-on-surface-variant hover:text-on-surface transition-colors hover:opacity-70 duration-300" href="#">The Journal</a>
+<a class="font-nav-link text-nav-link uppercase text-on-surface-variant hover:text-on-surface transition-colors hover:opacity-70 duration-300" href="#">About</a>
+</nav>
+<div class="md:hidden">
+<span class="material-symbols-outlined text-on-background cursor-pointer hover:opacity-70 transition-opacity duration-300">menu</span>
+</div>
+<a class="font-display-lg text-headline-md tracking-tighter text-on-background uppercase text-center absolute left-1/2 transform -translate-x-1/2" href="/">
+            Chain Reaction
+        </a>
+<div class="flex items-center">
+<button class="hover:opacity-70 transition-opacity duration-300 group flex items-center gap-1 relative">
+<span class="material-symbols-outlined text-on-background">shopping_bag</span>
+<span class="font-label-caps text-label-caps text-secondary absolute -bottom-1 -right-1 group-hover:-translate-y-1 transition-transform">0</span>
+</button>
+</div>
+</header>
+<main>
+<!-- 1. Editorial Hero -->
+<section class="relative h-[90vh] md:h-screen w-full flex items-center justify-center overflow-hidden pt-24 md:pt-0">
+<div class="absolute inset-0 z-0 image-container">
+<img alt="Handcrafted jewelry on model in moody lighting" class="w-full h-full object-cover object-center opacity-80 image-hover-zoom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWUHryQiyF9_Wsp7TBr8r2-2deKSEM-hpd5cFbU_HpVn3fd_S6RDFcQN_z2pdNy9kCs8SPDU0ZlSORPzVGEFpWUltICsRgcWLrp_-bcXNdwFbc9l5n3VJ0HE5_Ov9VTysnBclBbnCcZ4stPmOzrhpkTbBe6zkCoVHkT3Sn8KsfXfm7LJPli5lWXtnXprhEHE_C6lXGegUhDkmCYVL0Krbnb5I3MZ6_7UUj4f9Zsx6RLnruriMRj-4L"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30"></div>
+</div>
+<div class="relative z-10 flex flex-col items-center justify-center text-center px-margin-mobile md:px-margin-desktop mt-20 md:mt-0">
+<span class="font-label-caps text-label-caps uppercase tracking-[0.2em] mb-stack-md text-on-surface-variant">Handmade in Zambia</span>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg max-w-4xl mx-auto uppercase">
+                    Made by Hand.<br/><span class="italic text-secondary">Made to Remain.</span>
+</h1>
+</div>
+<div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 opacity-60">
+<span class="font-label-caps text-label-caps text-[10px] uppercase">Scroll</span>
+<div class="w-[1px] h-12 bg-on-background relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1/2 bg-secondary animate-ping"></div>
+</div>
+</div>
+</section>
+<!-- 2. Featured Collection -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop bg-surface">
+<div class="grid grid-cols-12 gap-gutter">
+<div class="col-span-12 md:col-span-4 flex flex-col justify-end pb-stack-md md:pb-0 mb-12 md:mb-0 relative z-10">
+<h2 class="font-headline-lg text-headline-lg mb-stack-md">Objects with<br/>a story.</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm mb-stack-md">
+                        Our latest collection explores the tension between raw earth and refined craftsmanship. Each piece is unique.
+                    </p>
+<a class="inline-block border-b border-secondary pb-1 font-label-caps text-label-caps uppercase hover:text-secondary transition-colors w-max" href="#">Explore Collection</a>
+</div>
+<div class="col-span-12 md:col-span-8 relative">
+<div class="w-full md:w-3/4 ml-auto image-container relative">
+<img alt="Close up of golden earrings on dark textured slate" class="w-full h-[60vh] object-cover image-hover-zoom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbl5Cge_HZpVZHFiuIKyvNBdd7jwCxSTnO6t2gH220MWTU1dbe0vCApswCFc-AGQ0dCoftkWDzlztGCMTP_cPfBsijT8POv_TnnruS-81utUXrM9iRvVPdyG2f1axhBUIoNaB1SliTKClCU0GAYJPH47vnKtVDD20LtbXDrQvawkRsPiF4aKBIE4-pIyD9whZi1qUnbYY3MYf9vi5cZgvrIzdYtMZnwHtzlCygMAXC4kwTbkloN8rN"/>
+<div class="mt-4 flex justify-between items-center">
+<span class="font-label-caps text-label-caps uppercase">Molten Brass Earrings</span>
+<span class="font-label-caps text-label-caps">$145</span>
+</div>
+<div class="editorial-line mt-2"></div>
+</div>
+<!-- Offset overlap image -->
+<div class="hidden md:block absolute -left-12 bottom-12 w-64 image-container z-20">
+<img class="w-full h-80 object-cover image-hover-zoom border-[0.5px] border-outline/30" data-alt="A macro shot of a hammered copper ring resting on dark volcanic rock. High contrast, directional lighting highlighting the texture of the metal. Brutalist and luxurious aesthetic. Warm ivory and charcoal tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJWaWf8qcJjwNLmcfAkqOe9nTiB9OSs5QDj3hJOQRLHyuUpaK0IQ96iLoh5DAvKgNwFNi5JinXeVXJY2i7Ozp1gQDxxyIf-sv4PBBgy03uRT6GZdQ-wIEIKkbHsBppmVwrZ3X03enQu5Uq2tsQEE9QTjtCfqPjxBwFCSzin0JK_wOmrL_MGWNcejhDuNvUsb8j9v5OQ3l073SMBNYlBHLR4cV8pBtt3j_2hQCQ5h3y-OOyeat6g2C1"/>
+<div class="mt-2 flex justify-between items-center bg-surface/90 backdrop-blur p-2">
+<span class="font-label-caps text-label-caps uppercase text-[10px]">Hammered Ring</span>
+<span class="font-label-caps text-label-caps text-[10px]">$85</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. Brand Section -->
+<section class="py-section-gap border-t border-outline/10">
+<div class="grid grid-cols-12 gap-0 md:gap-gutter">
+<div class="col-span-12 md:col-span-6 h-[50vh] md:h-[80vh] image-container">
+<img alt="Artisan hands working on copper wire with pliers in a warm lit workshop" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDheVq9aeewB1PPQTYOQokVcZAYcDzm1TmNJA0IRUYZr5cnai6GaP51Nykl9mkGsAOp93_nQHJZ0uyYnHSBdS7PLwx0K3VUwiEaeVZaDTFqLdO14Ou4tL4eHeE28yfSP06VkAA3S6bo4-WPWrHK6rn6jm_5yV5kOJ7LYCGZjpfKYdPc_xqBWDjqjxMqszjidF-hUzKFbLnSpOTcXpf_HtzCBzsnqCGyIbq-k9yzPYsXMbqQW9EzsaVV"/>
+</div>
+<div class="col-span-12 md:col-span-6 flex items-center justify-center p-margin-mobile md:p-margin-desktop bg-surface-container-low">
+<div class="max-w-md">
+<h3 class="font-display-lg-mobile md:font-headline-lg text-display-lg-mobile md:text-headline-lg mb-stack-md italic text-on-surface">"Every piece begins with a pair of hands."</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-stack-md">
+                            We reject mass production. We embrace the flaws, the hammer marks, and the slow process of shaping metal by fire and force.
+                        </p>
+<button class="bg-on-background text-background font-label-caps text-label-caps uppercase px-8 py-4 hover:bg-secondary hover:text-on-secondary transition-colors">Our Story</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full pt-section-gap pb-stack-md bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline/10">
+<div class="grid grid-cols-12 gap-gutter px-margin-mobile md:px-margin-desktop w-full mb-section-gap">
+<div class="col-span-12 md:col-span-4 mb-12 md:mb-0">
+<span class="font-display-lg text-headline-md tracking-tighter text-on-surface opacity-50 uppercase block mb-stack-md">Chain Reaction</span>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs">
+                    Contemporary African Luxury. Crafted in Zambia.
+                </p>
+</div>
+<div class="col-span-6 md:col-span-2 md:col-start-8">
+<ul class="space-y-4">
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-secondary transition-colors hover:underline decoration-secondary/30" href="#">Privacy Policy</a></li>
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-secondary transition-colors hover:underline decoration-secondary/30" href="#">Shipping &amp; Returns</a></li>
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-secondary transition-colors hover:underline decoration-secondary/30" href="#">Sustainability</a></li>
+</ul>
+</div>
+<div class="col-span-6 md:col-span-2">
+<ul class="space-y-4">
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-secondary transition-colors hover:underline decoration-secondary/30" href="#">Stockists</a></li>
+<li><a class="font-body-md text-body-md text-on-surface-variant hover:text-secondary transition-colors hover:underline decoration-secondary/30" href="#">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="px-margin-mobile md:px-margin-desktop flex justify-between items-center border-t border-outline/10 pt-stack-md">
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">© 2024 Chain Reaction. Crafted in Zambia.</span>
+<div class="flex gap-4">
+<a class="text-on-surface-variant hover:text-secondary" href="#"><span class="material-symbols-outlined">share</span></a>
+</div>
+</div>
+</footer>
+</body></html>

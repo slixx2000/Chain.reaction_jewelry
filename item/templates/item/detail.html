@@ -53,7 +53,7 @@
                 </div>
             {% elif item.is_sold %}
                 <span class="inline-block px-6 py-3 rounded-lg bg-chain-wine text-white font-bold">Sold Out</span>
-                <p class="text-gray-400 mt-3 text-sm">This piece has found a home. <a href="{% url 'core:contact' %}" class="text-chain-gold hover:underline">Ask about a similar commission.</a></p>
+                <p class="text-gray-400 mt-3 text-sm">This one has found a home. <a href="{% url 'core:contact' %}" class="text-chain-gold hover:underline">Ask us to watch for something similar.</a></p>
             {% else %}
                 <form method="post" action="{% url 'cart:add_to_cart' item.id %}" class="inline-block js-add-to-cart-form"
                       data-item-name="{{ item.name }}" data-item-price="{{ item.price|floatformat:2 }}"

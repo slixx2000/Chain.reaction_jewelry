@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script>
   tailwind.config = {
     theme: {
@@ -16,18 +19,50 @@
             slate: "#252628",
             "slate-dark": "#1a1c1f",
             wine: "#5d0018",
-          }
-        }
+          },
+          // "Obsidian & Gold" editorial system — see stitch_.../DESIGN.md
+          obsidian: "#090909",
+          ink: "#131410",
+          charcoal: "#151515",
+          "charcoal-high": "#1c1c18",
+          ivory: "#f1eee7",
+          "ivory-dim": "#c4c7c7",
+          antique: "#d6a21a",
+          burgundy: "#5c0715",
+        },
+        fontFamily: {
+          display: ['"Bodoni Moda"', 'Georgia', 'serif'],
+          body: ['"Hanken Grotesk"', 'system-ui', 'sans-serif'],
+        },
+        letterSpacing: { caps: '0.15em' },
+        spacing: { gutter: '24px', 'section-gap': '160px' },
       }
     }
   }
 </script>
-    <meta name="description" content="{% block description %}Chain Reaction — handcrafted jewelry from Zambia. Browse and buy unique pieces.{% endblock %}">
-    <title>{% block title %}Handcrafted Jewelry{% endblock %} | Chain Reaction</title>
+    <style>
+      body { font-family: 'Hanken Grotesk', system-ui, sans-serif; }
+      /* Paper grain — the design system uses texture instead of shadows. */
+      .grain {
+        position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: .035;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .rule { height: 1px; background: rgba(241, 238, 231, .2); }
+      .caps { font-size: 12px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; }
+      /* Diagonal hatch marks an image that has not been shot yet. */
+      .placeholder {
+        background-color: #151515;
+        background-image: repeating-linear-gradient(45deg,
+          rgba(241,238,231,.05) 0 1px, transparent 1px 14px);
+      }
+    </style>
+    <meta name="description" content="{% block description %}Chain Reaction — a curated jewelry edit. Sourced abroad, brought to Lusaka.{% endblock %}">
+    <title>{% block title %}Contemporary Jewelry{% endblock %} | Chain Reaction</title>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="overflow-x-hidden">
-  <nav class="py-3 px-3 sm:py-5 sm:px-6 border-b border-black bg-chain-slate-dark text-chain-gold sticky top-0 z-50">
+<body class="overflow-x-hidden bg-ink text-ivory selection:bg-antique selection:text-obsidian">
+  <div class="grain" aria-hidden="true"></div>
+  <nav class="py-4 px-5 sm:py-6 sm:px-8 border-b border-ivory/15 bg-obsidian/90 backdrop-blur-md text-ivory sticky top-0 z-50">
     <div class="max-w-7xl mx-auto grid grid-cols-[auto_1fr_auto] gap-2 items-center">
       <div class="justify-self-start">
         <div class="flex items-center gap-1.5 sm:gap-3">
@@ -36,7 +71,7 @@
               id="back-button"
               type="button"
               aria-label="Go back"
-              class="inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-chain-gold/40 hover:bg-chain-gold hover:text-black transition-colors"
+              class="inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 border border-ivory/25 text-ivory hover:bg-ivory hover:text-obsidian transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-5 h-5 sm:w-6 sm:h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -50,30 +85,30 @@
               type="button"
               aria-label="Open menu"
               aria-expanded="false"
-              class="inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-chain-gold/40 hover:bg-chain-gold hover:text-black transition-colors"
+              class="inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 border border-ivory/25 text-ivory hover:bg-ivory hover:text-obsidian transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-5 h-5 sm:w-6 sm:h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
 
-            <div id="menu-panel" class="hidden absolute left-0 mt-2 w-52 rounded-xl border border-chain-gold/25 bg-chain-slate-dark shadow-xl z-50 p-2">
-              <a href="{% url 'item:items' %}" class="block px-4 py-2 rounded-lg text-chain-gold hover:bg-chain-gold hover:text-black font-semibold">Browse</a>
+            <div id="menu-panel" class="hidden absolute left-0 mt-3 w-56 border border-ivory/20 bg-obsidian z-50">
+              <a href="{% url 'item:items' %}" class="block px-5 py-3 caps text-ivory/80 hover:bg-ivory hover:text-obsidian transition-colors">Browse</a>
 
               {% if user.is_authenticated %}
-                <a href="{% url 'orders:history' %}" class="block px-4 py-2 rounded-lg text-chain-gold hover:bg-chain-gold hover:text-black font-semibold">My Orders</a>
+                <a href="{% url 'orders:history' %}" class="block px-5 py-3 caps text-ivory/80 hover:bg-ivory hover:text-obsidian transition-colors">My Orders</a>
                 <form method="post" action="{% url 'core:logout' %}" style="display: inline;">
                   {% csrf_token %}
-                  <button type="submit" class="block w-full text-left px-4 py-2 rounded-lg text-chain-gold hover:bg-chain-gold hover:text-black font-semibold bg-transparent border-none cursor-pointer">Logout</button>
+                  <button type="submit" class="block w-full text-left px-5 py-3 caps text-ivory/80 hover:bg-ivory hover:text-obsidian bg-transparent border-none cursor-pointer transition-colors">Logout</button>
                 </form>
 
                 {% if user.is_superuser %}
-                  <a href="{% url 'item:new_item' %}" class="block px-4 py-2 rounded-lg text-chain-gold hover:bg-chain-gold hover:text-black font-semibold">Add Item</a>
-                  <a href="{% url 'dashboard:index' %}" class="block px-4 py-2 rounded-lg text-chain-gold hover:bg-chain-gold hover:text-black font-semibold">Dashboard</a>
+                  <a href="{% url 'item:new_item' %}" class="block px-5 py-3 caps text-ivory/80 hover:bg-ivory hover:text-obsidian transition-colors">Add Item</a>
+                  <a href="{% url 'dashboard:index' %}" class="block px-5 py-3 caps text-ivory/80 hover:bg-ivory hover:text-obsidian transition-colors">Dashboard</a>
                 {% endif %}
               {% else %}
-                <a href="{% url 'core:signup' %}" class="block px-4 py-2 rounded-lg text-chain-gold hover:bg-chain-gold hover:text-black font-semibold">Sign Up</a>
-                <a href="{% url 'core:login' %}" class="block px-4 py-2 rounded-lg text-chain-gold hover:bg-chain-gold hover:text-black font-semibold">Login</a>
+                <a href="{% url 'core:signup' %}" class="block px-5 py-3 caps text-ivory/80 hover:bg-ivory hover:text-obsidian transition-colors">Sign Up</a>
+                <a href="{% url 'core:login' %}" class="block px-5 py-3 caps text-ivory/80 hover:bg-ivory hover:text-obsidian transition-colors">Login</a>
               {% endif %}
             </div>
           </div>
@@ -81,16 +116,16 @@
       </div>
 
       <div class="justify-self-center min-w-0">
-        <a href="{% url 'core:index' %}" class="block truncate text-base sm:text-2xl md:text-3xl font-bold sm:tracking-wide hover:underline hover:text-chain-gold transition-colors">Chain Reaction</a>
+        <a href="{% url 'core:index' %}" class="block truncate font-display text-lg sm:text-2xl md:text-3xl uppercase tracking-tight hover:text-antique transition-colors">Chain Reaction</a>
       </div>
 
       <div class="justify-self-end">
-        <a href="{% url 'cart:cart_summary' %}" aria-label="Cart" class="relative inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-chain-gold/40 hover:bg-chain-gold hover:text-black transition-colors">
+        <a href="{% url 'cart:cart_summary' %}" aria-label="Cart" class="relative inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 border border-ivory/25 text-ivory hover:bg-ivory hover:text-obsidian transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5 sm:w-6 sm:h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 8V7a3.5 3.5 0 117 0v1" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 8.5h15l-1 10a2 2 0 01-2 1.8h-9a2 2 0 01-2-1.8l-1-10z" />
           </svg>
-          <span id="cart-count-badge" class="absolute -top-2 -right-2 min-w-5 h-5 px-1 inline-flex items-center justify-center rounded-full bg-chain-gold text-black text-xs font-bold {% if cart|length == 0 %}hidden{% endif %}">{{ cart|length }}</span>
+          <span id="cart-count-badge" class="absolute -top-2 -right-2 caps text-antique text-[11px] {% if cart|length == 0 %}hidden{% endif %}">{{ cart|length }}</span>
         </a>
       </div>
     </div>
@@ -124,7 +159,7 @@
 {% if messages %}
   <div id="flash-messages" role="status" class="transition-opacity duration-500">
     {% for message in messages %}
-      <div class="px-6 py-3 flex items-center justify-between gap-4 font-semibold {% if message.tags == 'error' %}bg-red-700 text-white{% else %}bg-chain-gold text-black{% endif %}">
+      <div class="px-6 py-3 flex items-center justify-between gap-4 caps {% if message.tags == 'error' %}bg-burgundy text-ivory{% else %}bg-ivory text-obsidian{% endif %}">
         <p>{{ message }}</p>
         <button type="button" aria-label="Dismiss" class="text-xl leading-none opacity-70 hover:opacity-100" onclick="this.parentElement.remove();">&times;</button>
       </div>
@@ -132,19 +167,38 @@
   </div>
 {% endif %}
 
-    <main class="{% block main_class %}px-4 sm:px-6 py-6{% endblock %} bg-chain-dark min-h-screen text-white">
+    <main class="{% block main_class %}px-5 sm:px-8 py-8{% endblock %} bg-ink min-h-screen text-ivory">
        {% block content %}
        {% endblock %}
     </main>
 
-<footer class="py-6 px-6 border-t border-chain-gold/20 bg-chain-slate-dark text-center text-sm text-gray-300">
-    <div class="flex flex-wrap justify-center gap-x-2 gap-y-1">
-        <a href="{% url 'item:items' %}" class="hover:text-chain-gold">Browse</a>
-        <span>|</span>
-        <a href="{% url 'core:contact' %}" class="hover:text-chain-gold">Contact</a>
+<footer class="border-t border-ivory/10 bg-obsidian px-5 sm:px-8 pt-16 pb-8">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-12 gap-8">
+        <div class="col-span-2 md:col-span-5">
+            <span class="block font-display text-2xl uppercase tracking-tight text-ivory/50 mb-4">Chain Reaction</span>
+            <p class="text-sm text-ivory-dim max-w-xs">
+                A curated jewelry edit. Chosen abroad, brought to Lusaka.
+            </p>
+        </div>
+        <div class="md:col-span-3 md:col-start-8">
+            <p class="caps text-ivory/40 mb-4">Shop</p>
+            <ul class="space-y-3 text-sm">
+                <li><a href="{% url 'item:items' %}" class="text-ivory-dim hover:text-antique transition-colors">All pieces</a></li>
+                <li><a href="{% url 'cart:cart_summary' %}" class="text-ivory-dim hover:text-antique transition-colors">Your bag</a></li>
+            </ul>
+        </div>
+        <div class="md:col-span-2">
+            <p class="caps text-ivory/40 mb-4">Reach us</p>
+            <ul class="space-y-3 text-sm">
+                <li><a href="{% url 'core:contact' %}" class="text-ivory-dim hover:text-antique transition-colors">Contact</a></li>
+                <li><a href="{% url 'core:contact' %}" class="text-ivory-dim hover:text-antique transition-colors">Request a piece</a></li>
+            </ul>
+        </div>
     </div>
-    <p class="mt-3 text-gray-400">&copy; 2024-2026 Chain Reaction. All rights reserved.</p>
-    </footer>
+    <div class="max-w-7xl mx-auto mt-12 pt-6 border-t border-ivory/10">
+        <p class="text-xs text-ivory/40">&copy; 2024-2026 Chain Reaction &middot; Lusaka, Zambia</p>
+    </div>
+</footer>
 <script>
   (function () {
     const flash = document.getElementById('flash-messages');
