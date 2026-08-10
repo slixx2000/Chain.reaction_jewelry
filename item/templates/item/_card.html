@@ -1,31 +1,44 @@
-{# Product card shared by the home page and the browse grid. Expects `item`. #}
-<div class="flex flex-col border border-chain-gold rounded-lg bg-chain-dark overflow-hidden hover:shadow-lg hover:shadow-chain-gold/20 transition-shadow">
+{# Product card shared by the home page, the browse grid and related items. Expects `item`. #}
+<div class="flex flex-col rounded-lg overflow-hidden transition-shadow
+            {% if item.is_sold %}border border-gray-700 bg-chain-dark/60{% else %}border border-chain-gold bg-chain-dark hover:shadow-lg hover:shadow-chain-gold/20{% endif %}">
     <a href="{% url 'item:detail' pk=item.pk %}" class="block group">
         <div class="relative">
             {% if item.image %}
                 <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy"
-                     class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
+                     class="w-full h-44 sm:h-56 object-cover transition-transform duration-300
+                            {% if item.is_sold %}grayscale opacity-40{% else %}group-hover:scale-105{% endif %}">
             {% else %}
-                <div class="w-full h-56 bg-chain-slate flex items-center justify-center text-gray-400">No image</div>
+                <div class="w-full h-44 sm:h-56 bg-chain-slate flex items-center justify-center text-gray-400 text-sm
+                            {% if item.is_sold %}opacity-40{% endif %}">No image</div>
             {% endif %}
+
             {% if item.is_sold %}
-                <span class="absolute top-2 left-2 px-2 py-1 rounded bg-chain-wine text-white text-xs font-bold uppercase tracking-wide">Sold</span>
+                {# Struck across the photo so it reads as unavailable at a glance. #}
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="px-4 py-1.5 rounded-full bg-black/80 border border-gray-500 text-gray-200 text-xs font-bold uppercase tracking-widest">
+                        Sold Out
+                    </span>
+                </div>
+            {% elif item.badge %}
+                <span class="absolute top-2 left-2 px-2.5 py-1 rounded-full text-[0.65rem] sm:text-xs font-bold uppercase tracking-wide shadow {{ item.badge_classes }}">
+                    {{ item.get_badge_display }}
+                </span>
             {% endif %}
         </div>
-        <div class="p-4">
-            <h3 class="text-lg font-semibold text-chain-gold truncate">{{ item.name }}</h3>
-            <p class="text-gray-300 font-bold mt-1">ZMW {{ item.price|floatformat:2 }}</p>
+        <div class="p-3 sm:p-4">
+            <h3 class="text-sm sm:text-lg font-semibold truncate {% if item.is_sold %}text-gray-500{% else %}text-chain-gold{% endif %}">{{ item.name }}</h3>
+            <p class="text-sm sm:text-base font-bold mt-1 {% if item.is_sold %}text-gray-600 line-through{% else %}text-gray-300{% endif %}">ZMW {{ item.price|floatformat:2 }}</p>
         </div>
     </a>
-    <div class="px-4 pb-4 mt-auto">
+    <div class="px-3 sm:px-4 pb-3 sm:pb-4 mt-auto">
         {% if item.is_sold %}
-            <span class="block w-full text-center px-3 py-2 text-sm rounded-lg border border-gray-600 text-gray-500">Sold Out</span>
+            <span class="block w-full text-center px-2 sm:px-3 py-2 text-xs sm:text-sm rounded-lg border border-gray-700 text-gray-600">Sold Out</span>
         {% else %}
             <form method="post" action="{% url 'cart:add_to_cart' item.id %}" class="js-add-to-cart-form"
                   data-item-name="{{ item.name }}" data-item-price="{{ item.price|floatformat:2 }}"
                   data-item-image="{% if item.image %}{{ item.image.url }}{% endif %}">
                 {% csrf_token %}
-                <button type="submit" class="w-full px-3 py-2 text-sm border border-chain-gold text-chain-gold font-semibold rounded-lg hover:bg-chain-gold hover:text-black transition-colors">
+                <button type="submit" class="w-full px-2 sm:px-3 py-2 text-xs sm:text-sm border border-chain-gold text-chain-gold font-semibold rounded-lg hover:bg-chain-gold hover:text-black transition-colors">
                     Add to Bag
                 </button>
             </form>

@@ -4,10 +4,10 @@
 
 {% block content %}
     <div class="max-w-5xl mx-auto">
-        <h1 class="text-3xl font-bold text-chain-gold mb-6">Checkout</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-chain-gold mb-4 sm:mb-6">Checkout</h1>
 
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <form method="post" class="lg:col-span-3 space-y-5 bg-chain-slate-dark p-6 rounded-lg">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+            <form method="post" class="lg:col-span-3 space-y-5 bg-chain-slate-dark p-4 sm:p-6 rounded-lg order-2 lg:order-1">
                 {% csrf_token %}
                 {% include 'core/_form.html' %}
 
@@ -23,7 +23,7 @@
                 <a href="{% url 'cart:cart_summary' %}" class="block text-center text-sm text-gray-300 hover:text-chain-gold">&larr; Back to bag</a>
             </form>
 
-            <aside class="lg:col-span-2">
+            <aside class="lg:col-span-2 order-1 lg:order-2">
                 <div class="border border-chain-gold rounded-lg p-5 bg-chain-slate-dark lg:sticky lg:top-24">
                     <h2 class="text-xl font-bold text-chain-gold mb-4">Order Summary</h2>
                     <ul class="space-y-3">

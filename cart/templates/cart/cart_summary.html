@@ -4,58 +4,40 @@
 
 {% block content %}
     <div class="max-w-7xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6 text-chain-gold">Your Bag</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-chain-gold">Your Bag</h1>
 
         {% if cart_items|length %}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <section class="lg:col-span-2 space-y-4">
                     {% for cart_item in cart_items %}
-                        <article class="border border-chain-gold rounded-lg p-4 bg-chain-dark">
-                            <div class="flex flex-wrap items-start gap-4">
+                        <article class="border border-chain-gold rounded-lg p-3 sm:p-4 bg-chain-dark">
+                            <div class="flex items-start gap-3 sm:gap-4">
                                 <a href="{% url 'item:detail' pk=cart_item.item.pk %}" class="shrink-0">
                                     {% if cart_item.item.image %}
-                                        <img src="{{ cart_item.item.image.url }}" alt="{{ cart_item.item.name }}" loading="lazy" class="w-24 h-24 object-cover rounded">
+                                        <img src="{{ cart_item.item.image.url }}" alt="{{ cart_item.item.name }}" loading="lazy" class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded">
                                     {% else %}
-                                        <div class="w-24 h-24 bg-chain-slate flex items-center justify-center rounded">
-                                            <span class="text-gray-400 text-sm">No Image</span>
+                                        <div class="w-20 h-20 sm:w-24 sm:h-24 bg-chain-slate flex items-center justify-center rounded">
+                                            <span class="text-gray-400 text-xs sm:text-sm">No Image</span>
                                         </div>
                                     {% endif %}
                                 </a>
 
-                                <div class="flex-1 min-w-[10rem]">
-                                    <a href="{% url 'item:detail' pk=cart_item.item.pk %}" class="text-xl font-semibold text-chain-gold hover:underline">{{ cart_item.item.name }}</a>
-                                    <p class="text-gray-400">ZMW {{ cart_item.item.price|floatformat:2 }} each</p>
+                                <div class="flex-1 min-w-0">
+                                    <a href="{% url 'item:detail' pk=cart_item.item.pk %}" class="block text-base sm:text-xl font-semibold text-chain-gold hover:underline">{{ cart_item.item.name }}</a>
+                                    <p class="text-sm sm:text-base text-gray-400">ZMW {{ cart_item.item.price|floatformat:2 }} each</p>
                                     <p class="text-sm text-gray-300 mt-1">Subtotal: ZMW {{ cart_item.total_price|floatformat:2 }}</p>
                                     {% if cart_item.item.is_sold %}
                                         <p class="text-sm text-red-400 font-semibold mt-1">This piece has since sold — please remove it.</p>
                                     {% endif %}
+
+                                    {# Controls sit under the details on phones, beside them from sm up. #}
+                                    <div class="flex sm:hidden items-center gap-2 mt-3">
+                                        {% include 'cart/_quantity_controls.html' %}
+                                    </div>
                                 </div>
 
-                                <div class="flex items-center gap-2">
-                                    <form method="post" action="{% url 'cart:update_cart_item' cart_item.item.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="quantity" value="{{ cart_item.quantity|add:'-1' }}">
-                                        <button type="submit" class="w-9 h-9 rounded-md border border-chain-gold text-chain-gold text-lg font-bold hover:bg-chain-gold hover:text-black transition-colors" aria-label="Decrease quantity">
-                                            -
-                                        </button>
-                                    </form>
-
-                                    <span class="min-w-8 text-center font-semibold text-white">{{ cart_item.quantity }}</span>
-
-                                    <form method="post" action="{% url 'cart:update_cart_item' cart_item.item.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="quantity" value="{{ cart_item.quantity|add:'1' }}">
-                                        <button type="submit" class="w-9 h-9 rounded-md border border-chain-gold text-chain-gold text-lg font-bold hover:bg-chain-gold hover:text-black transition-colors" aria-label="Increase quantity">
-                                            +
-                                        </button>
-                                    </form>
-
-                                    <form method="post" action="{% url 'cart:remove_from_cart' cart_item.item.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="w-9 h-9 rounded-md bg-red-700 text-white text-lg font-bold hover:bg-red-800 transition-colors" aria-label="Remove {{ cart_item.item.name }}">
-                                            &times;
-                                        </button>
-                                    </form>
+                                <div class="hidden sm:flex items-center gap-2">
+                                    {% include 'cart/_quantity_controls.html' %}
                                 </div>
                             </div>
                         </article>
@@ -66,7 +48,7 @@
 
                 <aside class="lg:col-span-1">
                     <div class="border border-chain-gold rounded-lg p-5 bg-chain-slate-dark lg:sticky lg:top-24">
-                        <h2 class="text-2xl font-bold text-chain-gold mb-4">Order Summary</h2>
+                        <h2 class="text-xl sm:text-2xl font-bold text-chain-gold mb-4">Order Summary</h2>
                         <div class="space-y-2 text-gray-200">
                             <div class="flex justify-between">
                                 <span>Items</span>

@@ -1,0 +1,25 @@
+{# Quantity stepper + remove. Rendered twice per row (mobile stacked, desktop inline). Expects `cart_item`. #}
+<form method="post" action="{% url 'cart:update_cart_item' cart_item.item.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="quantity" value="{{ cart_item.quantity|add:'-1' }}">
+    <button type="submit" class="w-9 h-9 rounded-md border border-chain-gold text-chain-gold text-lg font-bold hover:bg-chain-gold hover:text-black transition-colors" aria-label="Decrease quantity">
+        -
+    </button>
+</form>
+
+<span class="min-w-8 text-center font-semibold text-white">{{ cart_item.quantity }}</span>
+
+<form method="post" action="{% url 'cart:update_cart_item' cart_item.item.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="quantity" value="{{ cart_item.quantity|add:'1' }}">
+    <button type="submit" class="w-9 h-9 rounded-md border border-chain-gold text-chain-gold text-lg font-bold hover:bg-chain-gold hover:text-black transition-colors" aria-label="Increase quantity">
+        +
+    </button>
+</form>
+
+<form method="post" action="{% url 'cart:remove_from_cart' cart_item.item.id %}" class="ml-auto sm:ml-0">
+    {% csrf_token %}
+    <button type="submit" class="w-9 h-9 rounded-md bg-red-700 text-white text-lg font-bold hover:bg-red-800 transition-colors" aria-label="Remove {{ cart_item.item.name }}">
+        &times;
+    </button>
+</form>

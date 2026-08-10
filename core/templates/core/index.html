@@ -1,42 +1,246 @@
 {% extends 'core/base.html' %}
 
 {% block title %}Handcrafted Jewelry{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Scroll-reveal: elements start offset and settle as they enter the viewport. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .8s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible { opacity: 1; transform: none; }
+
+  /* Hero copy animates on load rather than on scroll — it is already in view. */
+  .rise { opacity: 0; transform: translateY(24px); animation: rise .9s cubic-bezier(.22,.61,.36,1) forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  .float-slow { animation: float 7s ease-in-out infinite; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+    50%      { transform: translateY(-18px) rotate(1.5deg); }
+  }
+
+  /* Slow sheen across the headline. */
+  .shimmer {
+    background: linear-gradient(100deg, #d29f22 20%, #f7e4a8 45%, #d29f22 70%);
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: sheen 6s linear infinite;
+  }
+  @keyframes sheen { to { background-position: -220% center; } }
+
+  .glow-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    opacity: .5;
+    animation: drift 16s ease-in-out infinite;
+  }
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(30px, -40px) scale(1.15); }
+  }
+
+  .lift { transition: transform .45s cubic-bezier(.22,.61,.36,1), box-shadow .45s ease; }
+  .lift:hover { transform: translateY(-6px); box-shadow: 0 18px 40px -18px rgba(210,159,34,.55); }
+
+  .scroll-cue { animation: nudge 2s ease-in-out infinite; }
+  @keyframes nudge { 0%,100% { transform: translateY(0); opacity:.55 } 50% { transform: translateY(8px); opacity:1 } }
+
+  /* Anyone who asks for less motion gets none of it. */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .rise { opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important; }
+    .float-slow, .shimmer, .glow-orb, .scroll-cue { animation: none !important; }
+    .shimmer { color: #d29f22; -webkit-text-fill-color: #d29f22; }
+    .lift:hover { transform: none; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-    <section class="max-w-7xl mx-auto mb-12 text-center py-10">
-        <h1 class="text-4xl md:text-5xl font-bold text-chain-gold mb-3">Chain Reaction</h1>
-        <p class="text-lg text-gray-300 max-w-2xl mx-auto">Discover and buy unique, handcrafted jewelry.</p>
-        <a href="{% url 'item:items' %}" class="inline-block mt-6 px-8 py-3 bg-chain-gold text-black font-semibold rounded-lg hover:bg-chain-gold-dark transition-colors">
-            Browse the Collection
+<!-- ---------- Hero ---------- -->
+<section class="relative overflow-hidden px-4 sm:px-6 py-14 sm:py-20 md:py-28">
+  <div class="glow-orb w-72 h-72 sm:w-[26rem] sm:h-[26rem] bg-chain-gold/25 -top-24 -left-24"></div>
+  <div class="glow-orb w-64 h-64 sm:w-[22rem] sm:h-[22rem] bg-chain-wine/40 bottom-0 right-0" style="animation-delay:-8s"></div>
+
+  <div class="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+    <div>
+      <p class="rise text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] text-chain-gold/80 mb-4 sm:mb-5" style="animation-delay:.05s">
+        Handmade in Zambia
+      </p>
+      <h1 class="rise text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] md:leading-[1.05] mb-5 sm:mb-6" style="animation-delay:.15s">
+        <span class="shimmer">Chain Reaction</span><br>
+        <span class="text-white">jewelry with a story.</span>
+      </h1>
+      <p class="rise text-base sm:text-lg text-gray-300 max-w-lg mb-7 sm:mb-8" style="animation-delay:.25s">
+        Copper, brass and stone, shaped by hand into pieces made one at a time.
+        When a piece sells, it is gone — that is the point.
+      </p>
+      <div class="rise flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4" style="animation-delay:.35s">
+        <a href="{% url 'item:items' %}"
+           class="lift text-center px-8 py-3.5 sm:py-4 rounded-xl bg-chain-gold text-black font-semibold hover:bg-chain-gold-dark">
+          Shop the collection
         </a>
-    </section>
+        <a href="#new-arrivals"
+           class="lift text-center px-8 py-3.5 sm:py-4 rounded-xl border border-chain-gold/50 text-chain-gold font-semibold hover:bg-chain-gold hover:text-black">
+          See what's new
+        </a>
+      </div>
 
-    <section class="max-w-7xl mx-auto mb-12">
-        <div class="flex items-baseline justify-between mb-4">
-            <h2 class="text-2xl font-bold text-chain-gold">Featured Items</h2>
-            <a href="{% url 'item:items' %}" class="text-sm text-gray-300 hover:text-chain-gold">View all &rarr;</a>
+      <div class="rise grid grid-cols-3 gap-3 sm:gap-8 mt-10 sm:mt-12 text-xs sm:text-sm text-gray-400" style="animation-delay:.45s">
+        <div>
+          <p class="text-xl sm:text-2xl font-bold text-chain-gold">{{ available_count }}</p>
+          <p>piece{{ available_count|pluralize }} in stock</p>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {% for item in items %}
-                {% include 'item/_card.html' %}
-            {% empty %}
-                <p class="text-gray-400 col-span-full">No items listed yet — check back soon.</p>
-            {% endfor %}
+        <div>
+          <p class="text-xl sm:text-2xl font-bold text-chain-gold">1 of 1</p>
+          <p>every design</p>
         </div>
-    </section>
+        <div>
+          <p class="text-base sm:text-2xl font-bold text-chain-gold leading-tight">MTN<span class="hidden sm:inline"> &middot; </span><span class="sm:hidden"> </span>Airtel</p>
+          <p>mobile money</p>
+        </div>
+      </div>
+    </div>
 
-    <section class="max-w-7xl mx-auto mb-6">
-        <h2 class="text-2xl font-bold mb-4 text-chain-gold">Shop by Category</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {% for category in categories %}
-                <a href="{% url 'item:items' %}?category={{ category.id }}"
-                   class="block p-4 rounded-lg bg-chain-slate hover:bg-chain-slate-dark border border-transparent hover:border-chain-gold transition-colors">
-                    <h3 class="text-xl font-semibold text-chain-gold">{{ category.name }}</h3>
-                    <p class="text-gray-400 text-sm">{{ category.items.count }} item{{ category.items.count|pluralize }}</p>
-                </a>
-            {% empty %}
-                <p class="text-gray-400 col-span-full">No categories yet.</p>
-            {% endfor %}
+    {% if hero_item %}
+      <div class="rise relative max-w-md mx-auto w-full" style="animation-delay:.3s">
+        <a href="{% url 'item:detail' pk=hero_item.pk %}" class="block float-slow">
+          {% if hero_item.image %}
+            <img src="{{ hero_item.image.url }}" alt="{{ hero_item.name }}"
+                 class="w-full rounded-2xl sm:rounded-3xl shadow-2xl shadow-chain-gold/20 ring-1 ring-chain-gold/30">
+          {% endif %}
+        </a>
+        <div class="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] rounded-xl sm:rounded-2xl bg-black/75 backdrop-blur px-4 sm:px-5 py-2.5 sm:py-3 border border-chain-gold/30">
+          <p class="text-[0.65rem] sm:text-xs uppercase tracking-wider text-gray-400">
+            {% if hero_item.badge %}{{ hero_item.get_badge_display }}{% else %}Just added{% endif %}
+          </p>
+          <div class="flex items-center justify-between gap-2 sm:gap-3">
+            <p class="font-semibold text-sm sm:text-base text-chain-gold truncate">{{ hero_item.name }}</p>
+            <p class="text-white text-sm sm:text-base whitespace-nowrap">ZMW {{ hero_item.price|floatformat:2 }}</p>
+          </div>
         </div>
-    </section>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="scroll-cue absolute bottom-6 left-1/2 -translate-x-1/2 text-chain-gold/70">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+    </svg>
+  </div>
+</section>
+
+<!-- ---------- Best sellers ---------- -->
+{% if best_sellers %}
+<section class="px-4 sm:px-6 py-12 sm:py-16 bg-chain-slate-dark/40">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal flex flex-wrap items-end justify-between gap-3 mb-8">
+      <div>
+        <p class="text-xs sm:text-sm uppercase tracking-[0.2em] text-chain-gold/70 mb-2">Most wanted</p>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Best Sellers</h2>
+      </div>
+      <a href="{% url 'item:items' %}" class="text-sm text-gray-300 hover:text-chain-gold">View all &rarr;</a>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+      {% for item in best_sellers %}
+        <div class="reveal relative lift" style="transition-delay:{% if forloop.counter0 < 4 %}{{ forloop.counter0 }}00{% else %}400{% endif %}ms">
+          <span class="absolute -top-3 -left-3 z-10 w-9 h-9 rounded-full bg-chain-gold text-black font-bold flex items-center justify-center shadow-lg">
+            {{ forloop.counter }}
+          </span>
+          {% include 'item/_card.html' %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ---------- New arrivals ---------- -->
+<section id="new-arrivals" class="px-4 sm:px-6 py-12 sm:py-16 scroll-mt-20">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal flex flex-wrap items-end justify-between gap-3 mb-8">
+      <div>
+        <p class="text-xs sm:text-sm uppercase tracking-[0.2em] text-chain-gold/70 mb-2">Fresh off the bench</p>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white">New Arrivals</h2>
+      </div>
+      <a href="{% url 'item:items' %}" class="text-sm text-gray-300 hover:text-chain-gold">View all &rarr;</a>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+      {% for item in new_arrivals %}
+        <div class="reveal lift" style="transition-delay:{% if forloop.counter0 < 4 %}{{ forloop.counter0 }}00{% else %}400{% endif %}ms">
+          {% include 'item/_card.html' %}
+        </div>
+      {% empty %}
+        <p class="text-gray-400 col-span-full">No pieces listed yet — check back soon.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ---------- Categories ---------- -->
+{% if categories %}
+<section class="px-4 sm:px-6 py-12 sm:py-16 bg-chain-slate-dark/40">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="reveal text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-6 sm:mb-8">Shop by Category</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+      {% for category in categories %}
+        <a href="{% url 'item:items' %}?category={{ category.id }}"
+           class="reveal lift group block p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-chain-slate border border-transparent hover:border-chain-gold"
+           style="transition-delay:{% if forloop.counter0 < 4 %}{{ forloop.counter0 }}00{% else %}400{% endif %}ms">
+          <h3 class="text-xl font-semibold text-chain-gold group-hover:translate-x-1 transition-transform">{{ category.name }}</h3>
+          <p class="text-gray-400 text-sm mt-1">{{ category.available_count }} available</p>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ---------- Closing band ---------- -->
+<section class="px-4 sm:px-6 py-16 sm:py-20">
+  <div class="reveal max-w-3xl mx-auto text-center">
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-chain-gold mb-4">Want something made for you?</h2>
+    <p class="text-gray-300 mb-8">
+      Commissions are open. Tell us the piece you have in mind and we'll work out
+      the design, the metal and the price together.
+    </p>
+    <a href="{% url 'core:contact' %}"
+       class="lift inline-block w-full sm:w-auto px-8 py-3.5 sm:py-4 rounded-xl bg-chain-gold text-black font-semibold hover:bg-chain-gold-dark">
+      Start a commission
+    </a>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const targets = document.querySelectorAll('.reveal');
+
+    // No IntersectionObserver (or motion turned off) — just show everything.
+    if (!('IntersectionObserver' in window) ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      targets.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);   // reveal once, then stop watching
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+    targets.forEach(function (el) { observer.observe(el); });
+  })();
+</script>
 {% endblock %}

@@ -10,7 +10,8 @@ from .forms import ItemForm
 
 
 def items(request):
-    items = Item.objects.filter(is_sold=False).select_related('category').order_by('-created_at')
+    # Sold pieces stay in the grid as proof the work sells, but always sort last.
+    items = Item.objects.select_related('category').order_by('is_sold', '-created_at')
     categories = Category.objects.all()
     selected_category = request.GET.get('category', '')
     query = request.GET.get('q', '').strip()
@@ -21,6 +22,7 @@ def items(request):
     if query:
         items = items.filter(Q(name__icontains=query) | Q(description__icontains=query))
 
+    sold_count = items.filter(is_sold=True).count()
     page = Paginator(items, 12).get_page(request.GET.get('page'))
 
     return render(
@@ -32,6 +34,8 @@ def items(request):
             'categories': categories,
             'selected_category': selected_category,
             'query': query,
+            'sold_count': sold_count,
+            'available_count': page.paginator.count - sold_count,
         },
     )
 

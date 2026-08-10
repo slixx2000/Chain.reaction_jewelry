@@ -4,13 +4,13 @@
 
 {% block content %}
     <div class="max-w-3xl mx-auto">
-        <h1 class="text-3xl font-bold text-chain-gold mb-6">My Orders</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-chain-gold mb-6">My Orders</h1>
 
         {% for order in orders %}
-            <a href="{% url 'orders:status' reference=order.reference %}" class="block mb-4 bg-chain-slate-dark rounded-lg p-5 hover:ring-1 hover:ring-chain-gold transition">
+            <a href="{% url 'orders:status' reference=order.reference %}" class="block mb-4 bg-chain-slate-dark rounded-lg p-4 sm:p-5 hover:ring-1 hover:ring-chain-gold transition">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <p class="font-mono text-chain-gold">{{ order.reference }}</p>
+                        <p class="font-mono text-sm sm:text-base text-chain-gold break-all">{{ order.reference }}</p>
                         <p class="text-sm text-gray-400">{{ order.created_at|date:"j M Y, H:i" }} &middot; {{ order.items.count }} item{{ order.items.count|pluralize }}</p>
                     </div>
                     <div class="text-right">

@@ -4,10 +4,26 @@
 
 {% block content %}
     <div class="max-w-7xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6 text-chain-gold">Available Jewelry</h1>
+    <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-chain-gold">Available Jewelry</h1>
+
+    {# Phones get a swipeable chip row; the sidebar returns at lg. #}
+    <div class="lg:hidden -mx-4 px-4 sm:-mx-6 sm:px-6 mb-5 overflow-x-auto">
+        <div class="flex gap-2 w-max pb-1">
+            <a href="{% url 'item:items' %}{% if query %}?q={{ query|urlencode }}{% endif %}"
+               class="whitespace-nowrap px-4 py-2 rounded-full text-sm {% if not selected_category %}bg-chain-gold text-black font-semibold{% else %}bg-chain-slate-dark text-gray-200{% endif %}">
+                All
+            </a>
+            {% for category in categories %}
+                <a href="{% url 'item:items' %}?category={{ category.id }}{% if query %}&q={{ query|urlencode }}{% endif %}"
+                   class="whitespace-nowrap px-4 py-2 rounded-full text-sm {% if selected_category == category.id|stringformat:'s' %}bg-chain-gold text-black font-semibold{% else %}bg-chain-slate-dark text-gray-200{% endif %}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <aside class="lg:col-span-1">
+        <aside class="hidden lg:block lg:col-span-1">
             <div class="bg-chain-slate-dark rounded-lg p-5 lg:sticky lg:top-24">
                 <h2 class="text-xl font-semibold text-chain-gold mb-4">Categories</h2>
                 <ul class="space-y-2">
@@ -38,29 +54,33 @@
                 {% if selected_category %}
                     <input type="hidden" name="category" value="{{ selected_category }}">
                 {% endif %}
-                <div class="flex gap-3">
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <input
                         type="search"
                         name="q"
                         value="{{ query }}"
                         aria-label="Search jewelry"
                         placeholder="Search jewelry by name or description"
-                        class="flex-1 min-w-0 px-4 py-3 border border-gray-700 rounded-lg bg-chain-slate-dark text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chain-gold"
+                        class="flex-1 min-w-0 px-4 py-2.5 sm:py-3 border border-gray-700 rounded-lg bg-chain-slate-dark text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-chain-gold"
                     >
-                    <button type="submit" class="px-5 py-3 bg-chain-gold text-black font-semibold rounded-lg hover:bg-chain-gold-dark transition-colors">
+                    <button type="submit" class="px-5 py-2.5 sm:py-3 bg-chain-gold text-black font-semibold rounded-lg hover:bg-chain-gold-dark transition-colors">
                         Search
                     </button>
                 </div>
             </form>
 
-            <div class="flex items-center justify-between mb-4 text-sm text-gray-400">
-                <p>{{ page.paginator.count }} item{{ page.paginator.count|pluralize }} found</p>
+            <div class="flex items-center justify-between gap-3 mb-4 text-sm text-gray-400">
+                <p>
+                    {{ available_count }} available{% if sold_count %}
+                        <span class="text-gray-500">&middot; {{ sold_count }} sold</span>
+                    {% endif %}
+                </p>
                 {% if query or selected_category %}
                     <a href="{% url 'item:items' %}" class="hover:text-chain-gold">Clear filters</a>
                 {% endif %}
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div class="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
                 {% for item in items %}
                     {% include 'item/_card.html' %}
                 {% empty %}
@@ -69,7 +89,7 @@
             </div>
 
             {% if page.has_other_pages %}
-                <nav aria-label="Pagination" class="mt-8 flex items-center justify-center gap-3">
+                <nav aria-label="Pagination" class="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm sm:text-base">
                     {% if page.has_previous %}
                         <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page.previous_page_number }}"
                            class="px-4 py-2 rounded-lg border border-chain-gold text-chain-gold hover:bg-chain-gold hover:text-black transition-colors">Previous</a>

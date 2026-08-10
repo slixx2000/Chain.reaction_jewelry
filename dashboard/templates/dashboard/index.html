@@ -5,7 +5,7 @@
 {% block content %}
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
-            <h1 class="text-3xl font-bold text-chain-gold">Jewelry Drawer</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-chain-gold">Jewelry Drawer</h1>
             <a href="{% url 'item:new_item' %}" class="px-5 py-2 bg-chain-gold text-black font-semibold rounded-lg hover:bg-chain-gold-dark transition-colors">
                 + Add Item
             </a>
@@ -15,23 +15,28 @@
         </p>
 
         {% if items %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {% for item in items %}
-                    <div class="bg-chain-slate-dark rounded-lg shadow-md overflow-hidden flex flex-col">
+                    <div class="rounded-lg shadow-md overflow-hidden flex flex-col {% if item.is_sold %}bg-chain-slate-dark/50{% else %}bg-chain-slate-dark{% endif %}">
                         <a href="{% url 'item:detail' pk=item.pk %}" class="block relative">
                             {% if item.image %}
-                                <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy" class="w-full h-48 object-cover">
+                                <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy"
+                                     class="w-full h-48 object-cover {% if item.is_sold %}grayscale opacity-40{% endif %}">
                             {% else %}
-                                <div class="w-full h-48 bg-chain-slate flex items-center justify-center text-gray-400">No image</div>
+                                <div class="w-full h-48 bg-chain-slate flex items-center justify-center text-gray-400 {% if item.is_sold %}opacity-40{% endif %}">No image</div>
                             {% endif %}
                             {% if item.is_sold %}
-                                <span class="absolute top-2 left-2 px-2 py-1 rounded bg-chain-wine text-white text-xs font-bold uppercase">Sold</span>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="px-4 py-1.5 rounded-full bg-black/80 border border-gray-500 text-gray-200 text-xs font-bold uppercase tracking-widest">Sold Out</span>
+                                </div>
+                            {% elif item.badge %}
+                                <span class="absolute top-2 left-2 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow {{ item.badge_classes }}">{{ item.get_badge_display }}</span>
                             {% endif %}
                         </a>
                         <div class="p-4 flex flex-col flex-1">
-                            <h2 class="text-xl font-bold text-chain-gold">{{ item.name }}</h2>
+                            <h2 class="text-xl font-bold {% if item.is_sold %}text-gray-500{% else %}text-chain-gold{% endif %}">{{ item.name }}</h2>
                             <p class="text-gray-300 text-sm mt-1 mb-3 line-clamp-2">{{ item.description|truncatechars:90 }}</p>
-                            <p class="text-xl font-bold text-white mt-auto">ZMW {{ item.price|floatformat:2 }}</p>
+                            <p class="text-xl font-bold mt-auto {% if item.is_sold %}text-gray-600 line-through{% else %}text-white{% endif %}">ZMW {{ item.price|floatformat:2 }}</p>
                             <div class="flex gap-2 mt-4">
                                 <a href="{% url 'item:edit' item.pk %}" class="flex-1 text-center px-3 py-2 text-sm border border-chain-gold text-chain-gold rounded-lg hover:bg-chain-gold hover:text-black transition-colors">Edit</a>
                                 <form method="post" action="{% url 'item:delete' item.pk %}" class="flex-1"

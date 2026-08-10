@@ -1,15 +1,26 @@
 from django.contrib import messages
 from django.contrib.auth import logout as auth_logout
+from django.db.models import Count, Q
 from django.shortcuts import render, redirect
-from item.models import Item, Category
+from item.models import Category
+from . import storefront
 from .forms import SignUpForm
 # Create your views here.
 
 
 def index(request):
-    items = Item.objects.filter(is_sold=False).order_by('-created_at')[:8]
-    categories = Category.objects.all()
-    return render(request, 'core/index.html', {'items': items, 'categories': categories})
+    new_arrivals = storefront.new_arrivals()
+
+    return render(request, 'core/index.html', {
+        'hero_item': new_arrivals[0] if new_arrivals else None,
+        'new_arrivals': new_arrivals,
+        # The whole catalogue, not just the slice shown above.
+        'available_count': storefront.available_items().count(),
+        'best_sellers': storefront.best_sellers(),
+        'categories': Category.objects.annotate(
+            available_count=Count('items', filter=Q(items__is_sold=False))
+        ).filter(available_count__gt=0),
+    })
 
 def contact(request):
     return render(request, 'core/contact.html')

@@ -4,22 +4,22 @@
 
 {% block content %}
     <div class="max-w-2xl mx-auto">
-        <div id="order-panel" class="bg-chain-slate-dark rounded-lg p-8 text-center"
+        <div id="order-panel" class="bg-chain-slate-dark rounded-lg p-6 sm:p-8 text-center"
              data-state-url="{% url 'orders:state' reference=order.reference %}"
              data-settled="{{ order.is_settled|yesno:'true,false' }}">
 
             {% if order.status == 'paid' %}
                 <div class="text-5xl mb-4">&#10003;</div>
-                <h1 class="text-3xl font-bold text-chain-gold mb-2">Payment received</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold text-chain-gold mb-2">Payment received</h1>
                 <p class="text-gray-300">Thank you, {{ order.full_name }}. We'll be in touch about delivery.</p>
             {% elif order.status == 'failed' %}
-                <h1 class="text-3xl font-bold text-red-400 mb-2">Payment not completed</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold text-red-400 mb-2">Payment not completed</h1>
                 <p class="text-gray-300">{{ order.failure_reason|default:'The payment was not completed. Nothing was charged.' }}</p>
             {% elif order.status == 'cancelled' %}
-                <h1 class="text-3xl font-bold text-gray-300 mb-2">Order cancelled</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-300 mb-2">Order cancelled</h1>
             {% else %}
                 <div id="spinner" class="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-chain-gold/30 border-t-chain-gold animate-spin"></div>
-                <h1 class="text-3xl font-bold text-chain-gold mb-2">Check your phone</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold text-chain-gold mb-2">Check your phone</h1>
                 <p class="text-gray-300">
                     We sent a payment prompt to <strong>{{ order.phone }}</strong> ({{ order.operator|upper }}).
                     Enter your mobile money PIN to approve ZMW {{ order.total|floatformat:2 }}.
@@ -27,10 +27,10 @@
                 <p class="text-sm text-gray-400 mt-3">This page updates on its own — no need to refresh.</p>
             {% endif %}
 
-            <p class="mt-6 text-sm text-gray-400">Order reference <span class="font-mono text-chain-gold">{{ order.reference }}</span></p>
+            <p class="mt-6 text-sm text-gray-400">Order reference <span class="font-mono text-chain-gold break-all">{{ order.reference }}</span></p>
         </div>
 
-        <div class="mt-6 bg-chain-slate-dark rounded-lg p-6">
+        <div class="mt-6 bg-chain-slate-dark rounded-lg p-4 sm:p-6">
             <h2 class="text-xl font-bold text-chain-gold mb-4">What you ordered</h2>
             <ul class="space-y-2">
                 {% for line in order.items.all %}

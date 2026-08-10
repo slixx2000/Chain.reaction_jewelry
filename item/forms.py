@@ -12,7 +12,7 @@ class ItemForm(forms.ModelForm):
 
     class Meta:
         model = Item
-        fields = ('category', 'name', 'description', 'price', 'image', 'is_sold')
+        fields = ('category', 'name', 'description', 'price', 'image', 'badge', 'is_sold')
         widgets = {
             'category': forms.Select(attrs={'class': INPUT}),
             'name': forms.TextInput(attrs={'class': INPUT, 'placeholder': 'Item name'}),
@@ -28,9 +28,10 @@ class ItemForm(forms.ModelForm):
                 'min': '0',
             }),
             'image': forms.FileInput(attrs={'class': INPUT, 'accept': 'image/*'}),
+            'badge': forms.Select(attrs={'class': INPUT}),
             'is_sold': forms.CheckboxInput(attrs={'class': 'w-5 h-5 accent-chain-gold'}),
         }
-        labels = {'is_sold': 'Mark as sold'}
+        labels = {'is_sold': 'Mark as sold', 'badge': 'Corner badge'}
 
     def clean_price(self):
         price = self.cleaned_data['price']

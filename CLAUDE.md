@@ -50,6 +50,22 @@ Four apps, all mounted in `chainreaction/urls.py`:
 - **dashboard** — one view: the logged-in user's own items.
 - **orders** — checkout, `Order`/`OrderItem`, and the Bila integration.
 
+Two different rules about sold pieces, both deliberate: the **browse grid keeps
+them**, greyed out and sorted last (`order_by('is_sold', '-created_at')`), as
+proof the work sells; the **landing page excludes them entirely**, because the
+hero and best-seller strips must be buyable. `Item.badge` is a manual
+merchandising label and is suppressed on sold pieces — the "Sold Out" stamp
+replaces it.
+
+`core/storefront.py` defines what the landing page shows (hero, new arrivals,
+best sellers) and is the **single** source for it. `core.views.index` renders
+from it and `ItemAdmin`'s "Shows on" column reports from it — a second copy
+would drift and the admin would start lying about where a piece appears.
+
+`ItemAdmin.get_list_display` is built per request so the placement lookup runs
+once per page rather than once per row; never cache that on the ModelAdmin
+instance, which is a long-lived singleton shared across threads.
+
 ### Payment flow (orders app)
 
 `orders/bila.py` is the only place that talks HTTP to Bila; `orders/services.py`
