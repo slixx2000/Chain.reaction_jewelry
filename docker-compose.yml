@@ -1,0 +1,29 @@
+# Oracle Cloud VM (Always Free, af-johannesburg-1) — the whole stack.
+#   docker compose up -d --build
+# SQLite and media live on the VM's persistent disk via ./data and ./media,
+# which is why this host needs no Neon/R2: the disk survives redeploys.
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./media:/app/media
+    expose:
+      - "8000"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

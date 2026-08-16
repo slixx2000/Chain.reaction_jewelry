@@ -1,0 +1,14 @@
+{
+	email mutangishaun7@gmail.com
+}
+
+# Caddy fetches and renews the Let's Encrypt cert itself once DNS points here.
+chainreactionjewelry.site, www.chainreactionjewelry.site {
+	reverse_proxy web:8000
+}
+
+# Pre-DNS smoke test only: Django will 301 this to https, which is fine —
+# a 301 proves the whole chain (caddy → gunicorn → Django) is alive.
+http://92.4.149.191 {
+	reverse_proxy web:8000
+}

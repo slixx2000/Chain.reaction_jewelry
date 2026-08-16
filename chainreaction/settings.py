@@ -173,7 +173,11 @@ DATABASES = {
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
         conn_max_age=600,
         conn_health_checks=True,
-        ssl_require=not DEBUG and bool(os.environ.get('DATABASE_URL')),
+        # sqlite has no sslmode option — a sqlite DATABASE_URL (persistent-disk
+        # VM) must not get ssl_require or every connection raises TypeError.
+        ssl_require=not DEBUG
+        and bool(os.environ.get('DATABASE_URL'))
+        and not os.environ.get('DATABASE_URL', '').startswith('sqlite'),
     )
 }
 
