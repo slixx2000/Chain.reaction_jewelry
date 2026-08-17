@@ -4,6 +4,12 @@
 
 # Caddy fetches and renews the Let's Encrypt cert itself once DNS points here.
 chainreactionjewelry.site, www.chainreactionjewelry.site {
+	# Django doesn't serve /media/ with DEBUG=False; Caddy serves the shared
+	# volume directly (mounted read-only at /srv/media in docker-compose.yml).
+	handle_path /media/* {
+		root * /srv/media
+		file_server
+	}
 	reverse_proxy web:8000
 }
 
