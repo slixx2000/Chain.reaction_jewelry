@@ -281,11 +281,18 @@ Deploying an update: push to GitHub, then on the VM
 --strip-components=1 && docker compose up -d --build` (run it via
 `sudo systemd-run` so a dropped SSH session can't kill it).
 
-**Live since 2026-08-17**: https://chainreactionjewelry.site serves over
-HTTPS (Let's Encrypt via Caddy, auto-renewing; Cloudflare records are DNS-only
-— flipping the proxy back on needs an origin cert first). Still pending:
-superuser, hero image, Bila sandbox webhook registration, test purchase,
-then Phase 4 (HSTS, live keys, rate limits).
+**Live since 2026-08-17, launch complete the same day**:
+https://chainreactionjewelry.site serves over HTTPS (Let's Encrypt via Caddy,
+auto-renewing; Cloudflare records are DNS-only — flipping the proxy back on
+needs an origin cert first). Caddy also serves `/media/` from the shared
+volume, since Django rightly refuses with DEBUG off. Everything after that is
+done and proven on the **live** Bila account: a real failed payment (PIN
+ignored → reconcile marked it failed) and a real successful K1 purchase
+(paid in seconds → stock sold → receipt + seller alert delivered). Live
+webhooks carry only Bila's collection id, no order reference — the webhook
+matcher handles both shapes. HSTS is on (31536000, preload), Sentry is
+receiving events, UptimeRobot pings every 5 min, legal pages published,
+`check --deploy` clean in production.
 
 ## 7. Launch today — free (2026-08-16)
 
