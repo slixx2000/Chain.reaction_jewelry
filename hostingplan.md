@@ -281,9 +281,11 @@ Deploying an update: push to GitHub, then on the VM
 --strip-components=1 && docker compose up -d --build` (run it via
 `sudo systemd-run` so a dropped SSH session can't kill it).
 
-Still pending: Cloudflare A records (apex+www → 92.4.149.191, DNS-only so
-Caddy can get its Let's Encrypt cert), superuser, hero image, Bila sandbox
-webhook registration, test purchase.
+**Live since 2026-08-17**: https://chainreactionjewelry.site serves over
+HTTPS (Let's Encrypt via Caddy, auto-renewing; Cloudflare records are DNS-only
+— flipping the proxy back on needs an origin cert first). Still pending:
+superuser, hero image, Bila sandbox webhook registration, test purchase,
+then Phase 4 (HSTS, live keys, rate limits).
 
 ## 7. Launch today — free (2026-08-16)
 
