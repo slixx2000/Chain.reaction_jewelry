@@ -139,28 +139,37 @@ def bila_webhook(request):
     except ValueError:
         return JsonResponse({'detail': 'invalid json'}, status=400)
 
-    reference = _find_reference(payload)
-    if not reference:
-        logger.warning('Bila webhook had no reference: %s', payload)
+    references, collection_ids = _find_identifiers(payload)
+    if not references and not collection_ids:
+        logger.warning('Bila webhook had no usable identifier: %s', payload)
         return JsonResponse({'detail': 'no reference'}, status=400)
 
-    order = Order.objects.filter(reference=reference).first()
+    order = (
+        Order.objects.filter(reference__in=references).first()
+        or Order.objects.filter(bila_collection_id__in=collection_ids).first()
+    )
+    # An identifier we don't recognise is still acknowledged — a 4xx would only
+    # make Bila retry a webhook that can never match.
     if order:
         services.refresh_from_bila(order)
-
     return JsonResponse({'detail': 'ok'})
 
 
-def _find_reference(payload):
-    """Bila's webhook body shape is not pinned down in the docs — look around."""
+def _find_identifiers(payload):
+    """Bila names the order differently per environment: sandbox bodies carry
+    our `reference`, live bodies only the collection `id` — collect both."""
+    references, collection_ids = [], []
     seen = payload
     for _ in range(3):
         if not isinstance(seen, dict):
-            return None
+            break
         if isinstance(seen.get('reference'), str):
-            return seen['reference']
+            references.append(seen['reference'])
+        for key in ('id', 'collectionId', 'transactionId'):
+            if isinstance(seen.get(key), str) and seen[key]:
+                collection_ids.append(seen[key])
         seen = seen.get('data')
-    return None
+    return references, collection_ids
 
 
 @ratelimit(key='ip', rate='10/m', method='POST', block=True)

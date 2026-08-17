@@ -336,6 +336,22 @@ class WebhookViewTests(TestCase):
         self.assertEqual(self.order.status, Order.Status.PAID)
 
     @patch('orders.services.bila.get_collection')
+    def test_live_webhook_body_without_reference_matches_by_collection_id(self, get_collection):
+        # Live webhooks carry only Bila's ids, not our reference (seen 2026-08-17).
+        self.order.bila_collection_id = 'cmsx3akvo012jqokyd0xuaiaq'
+        self.order.save()
+        get_collection.return_value = {'status': 'successful'}
+
+        response = self.post({
+            'id': 'cmsx3akvo012jqokyd0xuaiaq', 'amount': 300,
+            'status': 'PROCESSING', 'transactionId': 'cmsx3akvj012hqokyegrin4qg',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.PAID)
+
+    @patch('orders.services.bila.get_collection')
     def test_replayed_webhook_is_idempotent(self, get_collection):
         get_collection.return_value = {'status': 'successful'}
         self.post({'data': {'reference': self.order.reference}})
