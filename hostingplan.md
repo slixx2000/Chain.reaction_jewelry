@@ -261,7 +261,51 @@ media, image resizing, rate limiting, Sentry, Terms/Privacy/Returns pages.
 
 ---
 
-## 7. Rough running cost
+## 7a. What actually happened — Oracle VM (2026-08-17)
+
+Instead of Koyeb, the shop runs on an **Oracle Cloud Always Free VM**
+(`instance-20260816-1409`, VM.Standard.E2.1.Micro, 1 GB RAM, af-johannesburg-1,
+`ssh opc@92.4.149.191`). Persistent disk means **no Neon and no R2 needed**:
+SQLite lives in `/home/opc/app/data/`, media in `/home/opc/app/media/`, both
+bind-mounted into the container.
+
+Stack on the VM: Docker (static binaries at `/usr/local/bin` — **never run
+`dnf` on this box**, it OOM-wedges the 1 GB instance for ~30 min; three
+force-reboots learned this) + `docker compose` (web: gunicorn ×2 workers,
+caddy: auto-HTTPS). A 2 GB swapfile (`/swapfile2`) supplements the stock 1 GB.
+`reconcile-orders.timer` (systemd) sweeps stuck orders every 10 min. VCN
+security list and firewalld both allow 80/443.
+
+Deploying an update: push to GitHub, then on the VM
+`cd /home/opc/app && curl -fsSL .../archive/refs/heads/main.tar.gz | tar xz
+--strip-components=1 && docker compose up -d --build` (run it via
+`sudo systemd-run` so a dropped SSH session can't kill it).
+
+Still pending: Cloudflare A records (apex+www → 92.4.149.191, DNS-only so
+Caddy can get its Let's Encrypt cert), superuser, hero image, Bila sandbox
+webhook registration, test purchase.
+
+## 7. Launch today — free (2026-08-16)
+
+**Correction:** Fly.io retired free allowances for new accounts (new signups get
+a ~7-day/2-VM-hour trial, then ~$2–5/mo). For a $0 launch the host is now
+**Koyeb** (one free instance, 512 MB, Frankfurt, no card required). It scales
+to zero after 1 h idle with a 1–5 s cold start — an UptimeRobot ping every
+5 min keeps it warm. `Dockerfile` works unchanged; Koyeb builds it from GitHub.
+Fly (`jnb`) remains the upgrade path once revenue covers ~$5/mo.
+
+Stack: **Koyeb + Neon + Cloudflare R2 + Resend (done) + cron-job.org +
+UptimeRobot**. Note R2 needs a card on file for billing verification even at
+$0; if that blocks today, use the bucket's free `r2.dev` public URL and skip
+the custom media domain for now.
+
+Sequence: create Neon + R2 → deploy on Koyeb from GitHub with full env →
+createsuperuser via Koyeb web terminal → register Bila sandbox webhook at the
+`.koyeb.app` URL → cron-job.org POST to `/orders/cron/reconcile/` every 10 min
+→ UptimeRobot on `/` every 5 min → sandbox test purchase → point
+chainreactionjewelry.site at it and go live per Phase 4.
+
+## 8. Rough running cost
 
 | Stage | Monthly |
 |---|---|
