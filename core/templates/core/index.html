@@ -191,7 +191,12 @@
 <section class="border-t border-ivory/10">
   <div class="grid grid-cols-1 md:grid-cols-2">
     <div class="reveal zoom-parent h-64 sm:h-96 md:h-[80vh] overflow-hidden">
-      {% include 'core/_placeholder.html' with label="Studio / flat-lay" note="1200 × 1600 · pieces laid out on stone or linen" %}
+      {% if site.studio_image %}
+        <img src="{{ site.studio_image.url }}" alt="{{ site.studio_alt_text }}"
+             class="zoom-child h-full w-full object-cover" loading="lazy">
+      {% else %}
+        {% include 'core/_placeholder.html' with label="Studio / flat-lay" note="1200 × 1600 · pieces laid out on stone or linen" %}
+      {% endif %}
     </div>
     <div class="reveal flex items-center px-5 sm:px-10 md:px-16 py-16 md:py-0 bg-charcoal">
       <div class="max-w-md">

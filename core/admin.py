@@ -15,7 +15,7 @@ admin.site.empty_value_display = '—'
 class SiteContentAdmin(admin.ModelAdmin):
     """A single always-present row, so the list view just jumps straight to it."""
 
-    readonly_fields = ('hero_preview', 'updated_at')
+    readonly_fields = ('hero_preview', 'studio_preview', 'updated_at')
     fieldsets = (
         ('Landing page banner', {
             'fields': ('hero_image', 'hero_image_alt', 'hero_preview'),
@@ -23,6 +23,12 @@ class SiteContentAdmin(admin.ModelAdmin):
                            'Landscape works best — the headline sits over the middle, so avoid '
                            'putting the subject dead centre. Clear the image to go back to the '
                            'placeholder.',
+        }),
+        ('Studio / flat-lay', {
+            'fields': ('studio_image', 'studio_image_alt', 'studio_preview'),
+            'description': 'The tall image beside the “Why us” story further down the home '
+                           'page. Portrait works best, around 1200 × 1600. Clear the image '
+                           'to go back to the placeholder.',
         }),
         (None, {'fields': ('updated_at',)}),
     )
@@ -44,4 +50,13 @@ class SiteContentAdmin(admin.ModelAdmin):
         return format_html(
             '<img src="{}" style="max-width:520px;width:100%;display:block">',
             content.hero_image.url,
+        )
+
+    @admin.display(description='Preview')
+    def studio_preview(self, content):
+        if not content.studio_image:
+            return 'No photo uploaded — the home page is showing the placeholder.'
+        return format_html(
+            '<img src="{}" style="max-width:320px;width:100%;display:block">',
+            content.studio_image.url,
         )
