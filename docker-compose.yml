@@ -7,6 +7,12 @@ services:
     build: .
     restart: unless-stopped
     env_file: .env
+    # ponytail: 2 workers, not the Dockerfile's 3 — the 1 GB VM OOMs otherwise.
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn chainreaction.wsgi:application
+               --bind 0.0.0.0:8000 --workers 2 --timeout 60
+               --access-logfile - --error-logfile -"
     volumes:
       - ./data:/app/data
       - ./media:/app/media
